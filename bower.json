@@ -1,0 +1,24 @@
+{
+  "name": "Credential Management API Sample",
+  "version": "0.0.0",
+  "authors": [
+    "Eiji Kitamura <agektmr@gmail.com>"
+  ],
+  "description": "",
+  "main": "",
+  "moduleType": [],
+  "license": "Apache 2.0",
+  "homepage": "",
+  "ignore": [
+    "**/.*",
+    "node_modules",
+    "bower_components",
+    "test",
+    "tests"
+  ],
+  "dependencies": {
+    "paper-elements": "PolymerElements/paper-elements#~1.0.5",
+    "iron-elements": "PolymerElements/iron-elements#~1.0.4",
+    "fetch": "~0.10.0"
+  }
+}
