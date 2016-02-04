@@ -1,14 +1,11 @@
 {
   "name": "Credential Management API Sample",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "authors": [
-    "Eiji Kitamura <agektmr@gmail.com>"
+    "Eiji Kitamura <agektmr@google.com>"
   ],
-  "description": "",
-  "main": "",
-  "moduleType": [],
-  "license": "Apache 2.0",
-  "homepage": "",
+  "description": "Sample code that runs Credential Management API",
+  "license": "Apache-2.0",
   "ignore": [
     "**/.*",
     "node_modules",

@@ -4,9 +4,7 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "pip install -t lib -r requirements.txt; bower install;",
-    "build": "vulcanize static/elements/elements.html > static/elements/v.elements.html",
-    "markdown": "md2html README.md > README.html"
+    "postinstall": "pip install -t lib -r requirements.txt; bower install;"
   },
   "author": "Eiji Kitamura <agektmr@google.com>",
   "license": "Apache-2.0",

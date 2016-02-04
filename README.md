@@ -1,3 +1,40 @@
+Source code can be found at [https://github.com/GoogleChrome/credential-management-sample/].
+
+## Installation
+
+### Configure Google Sign-In
+
+Create a project and new OAuth client ID (set "Authorized JavaScript origins"
+as `localhost:8080`) following
+[these instructions](https://developers.google.com/identity/sign-in/web/devconsole-project).  
+Then download the JSON file and rename it to `client_secrets.json`, place it at
+the root of this project.
+
+![](images/howto/gsi_config.png)
+
+### Configure Facebook Login
+
+Create a project, copy the App ID and paste it to line 280 of
+`static/scripts/app.js`.
+
+![](images/howto/fb_config.png)
+
+### Install dependencies
+After checking out this repository, do followings
+
+```
+$ git submodule init
+$ git submodule update
+$ npm install
+```
+
+### Run the code
+```
+$ dev_appserver.py .
+```
+
+python dependencies and javascript dependencies will be resolved just by running `npm install`.
+
 ## What is this website about?
 This website is a demo of an open standard for the web - [Credential Management
 API](https://w3c.github.io/webappsec-credential-management/). The Credential
