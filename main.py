@@ -17,10 +17,13 @@
 from google.appengine.ext import vendor
 vendor.add('lib')
 
+import os
+import binascii
 import json
 import urllib
+from datetime import timedelta
 from bcrypt import bcrypt
-from flask import Flask, abort, request, make_response
+from flask import Flask, abort, request, make_response, render_template, session
 from oauth2client import client, crypt
 
 from google.appengine.ext import ndb
@@ -30,7 +33,7 @@ app = Flask(
     __name__,
     static_url_path='',
     static_folder='static',
-    template_folder=''
+    template_folder='templates'
 )
 app.debug = True
 
@@ -57,22 +60,32 @@ class CredentialStore(ndb.Model):
     @classmethod
     def verify(cls, password, hashed):
         if bcrypt.hashpw(password, hashed) == hashed:
-            print 'verification successful'
             return True
         else:
-            print 'verification failed'
             return False
+
+
+@app.before_request
+def csrf_protect():
+    if request.method == 'POST':
+        csrf_token = session.get('csrf_token', None)
+        if not csrf_token or csrf_token != request.form.get('csrf_token'):
+            abort(403)
 
 
 @app.route('/')
 def index():
-    return app.send_static_file('index.html')
+    if 'csrf_token' not in session:
+        session['csrf_token'] = binascii.hexlify(os.urandom(24))
+    return render_template('index.html',
+        client_id=CLIENT_ID, csrf_token=session['csrf_token'])
 
 
 @app.route('/auth/password', methods=['POST'])
 def pwauth():
     email = request.form.get('email', None)
     password = request.form.get('password', None)
+
     if email and password:
         store = CredentialStore.get_by_id(request.form['email'])
         if store is not None:

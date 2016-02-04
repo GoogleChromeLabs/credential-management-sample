@@ -14,13 +14,13 @@ the root of this project.
 
 ### Configure Facebook Login
 
-Create a project, copy the App ID and paste it to line 280 of
-`static/scripts/app.js`.
+[Create a project](https://developers.facebook.com/), copy the App ID and paste it to
+line 280 of `static/scripts/app.js`.
 
 ![](images/howto/fb_config.png)
 
 ### Install dependencies
-After checking out this repository, do followings
+After checking out this repository, do the following:
 
 ```
 $ git submodule init

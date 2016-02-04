@@ -11,15 +11,15 @@ app.listeners = {
   'show-toast': 'showToast'
 };
 
-app._storeCred = function(provider, _cred, opt) {
+app._storeCred = function(provider, _cred) {
   return new Promise(function(resolve, reject) {
     var cred = null;
     if (app.cmaEnabled) {
       switch (provider) {
         case PASSWORD_LOGIN:
           cred = new PasswordCredential({
-            id: opt.id,
-            password: opt.password
+            id: _cred.get('email'),
+            password: _cred.get('password')
           });
           break;
         case GOOGLE_SIGNIN:
@@ -75,7 +75,7 @@ app._autoSignIn = function(suppressUI) {
   });
 };
 
-app._authFlow = function(provider, form) {
+app._authFlow = function(provider, cred) {
   return new Promise(function(resolve, reject) {
     var url = '';
     switch (provider) {
@@ -91,7 +91,8 @@ app._authFlow = function(provider, form) {
     }
     return fetch(url, {
       method: 'POST',
-      body: form
+      body: cred,
+      credentials: 'include'
     }).then(function(res) {
       return res.json();
     }).then(function(profile) {
@@ -106,6 +107,27 @@ app._authFlow = function(provider, form) {
   });
 };
 
+app.onPwSignIn = function() {
+  var form = new FormData(this.$.form);
+  app._storeCred(PASSWORD_LOGIN, form).then(function() {
+    app.pwSignIn(form);
+  });
+};
+
+app.pwSignIn = function(cred) {
+  // Include CSRF token in the credential object
+  var csrf_token = new FormData();
+  csrf_token.append('csrf_token', document.querySelector('#csrf_token').value);
+  cred.additionalData = csrf_token;
+  return app._authFlow(PASSWORD_LOGIN, cred);
+};
+
+app.onGSignIn = function() {
+  app.gSignIn().then(function(profile) {
+    app._storeCred(GOOGLE_SIGNIN, profile);
+  });
+};
+
 app.gSignIn = function(id) {
   var auth2 = gapi.auth2.getAuthInstance();
   return auth2.signIn({
@@ -113,7 +135,14 @@ app.gSignIn = function(id) {
   }).then(function(googleUser) {
     form = new FormData();
     form.append('id_token', googleUser.getAuthResponse().id_token);
+    form.append('csrf_token', document.querySelector('#csrf_token').value);
     return app._authFlow(GOOGLE_SIGNIN, form);
+  });
+};
+
+app.onFbSignIn = function() {
+  app.fbSignIn().then(function(profile) {
+    app._storeCred(FACEBOOK_LOGIN, profile);
   });
 };
 
@@ -132,6 +161,7 @@ app.fbSignIn = function() {
     if (res.status == 'connected') {
       var form = new FormData();
       form.append('access_token', res.authResponse.accessToken);
+      form.append('csrf_token', document.querySelector('#csrf_token').value);
       return app._authFlow(FACEBOOK_LOGIN, form);
     } else {
       reject();
@@ -139,22 +169,15 @@ app.fbSignIn = function() {
   });
 };
 
-app.pwSignIn = function(cred) {
-  return app._authFlow(PASSWORD_LOGIN, cred);
-};
-
 app.onRegister = function() {
   var that = this;
   var form = new FormData(document.querySelector('#regForm'));
-  var opt = {
-    id: document.querySelector('#email').value,
-    name: document.querySelector('#name').value,
-    password: document.querySelector('#password').value
-  }
-  app._storeCred(PASSWORD_LOGIN, form, opt).then(function() {
+  app._storeCred(PASSWORD_LOGIN, form).then(function() {
+    form.append('csrf_token', document.querySelector('#csrf_token').value);
     fetch('/register', {
       method: 'POST',
-      body: form
+      body: form,
+      credentials: 'include'
     }).then(function(res) {
       if (res.status == 200) {
         return res.json();
@@ -187,9 +210,11 @@ app.onRegister = function() {
 app.onUnregister = function() {
   var form = new FormData();
   form.append('id', app.userProfile.id);
+  form.append('csrf_token', document.querySelector('#csrf_token').value);
   fetch('/unregister', {
     method: 'POST',
-    body: form
+    body: form,
+    credentials: 'include'
   }).then(function(res) {
     if (res.status != 200) {
       throw 'Could not unregister';
@@ -209,31 +234,10 @@ app.onUnregister = function() {
   });
 };
 
-app.onPwSignIn = function() {
-  var form = new FormData(this.$.form);
-  var opt = {
-    id: document.querySelector('#lemail').value,
-    password: document.querySelector('#lpassword').value
-  }
-  app._storeCred(PASSWORD_LOGIN, form, opt).then(function() {
-    app.pwSignIn(form);
-  });
-};
-
-app.onGSignIn = function() {
-  app.gSignIn().then(function(profile) {
-    app._storeCred(GOOGLE_SIGNIN, profile);
-  });
-};
-
-app.onFbSignIn = function() {
-  app.fbSignIn().then(function(profile) {
-    app._storeCred(FACEBOOK_LOGIN, profile);
-  });
-};
-
 app.signOut = function() {
-  fetch('/signout').then(function() {
+  fetch('/signout', {
+    credentials: 'include'
+  }).then(function() {
     if (app.cmaEnabled) {
       navigator.credentials.requireUserMediation();
     }
@@ -285,9 +289,7 @@ FB.init({
 
 // Initialise Google Sign-In
 gapi.load('auth2', function() {
-  gapi.auth2.init({
-    client_id: '958899272372-k713dk2pdddd4jmqvbqt3oupbg4q3ik3.apps.googleusercontent.com'
-  });
+  gapi.auth2.init();
   if (app.cmaEnabled) {
     app._autoSignIn(true).then(function() {
       console.log('auto sign-in succeeded.');
