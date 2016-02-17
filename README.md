@@ -1,8 +1,16 @@
-Source code can be found at [https://github.com/GoogleChrome/credential-management-sample/].
+- Demo website can be found [here](https://credential-management-sample.appspot.com).  
+- Source code can be found [here](https://github.com/GoogleChrome/credential-management-sample/).
 
-## Installation
+## Running on your own environment
 
-### Configure Google Sign-In
+### Prerequisites
+- Git
+- Node.js
+- NPM
+- [Python AppEngine](https://cloud.google.com/appengine/docs/python/)
+- pip
+
+### Step 1. Configure Google Sign-In
 
 Create a project and new OAuth client ID (set "Authorized JavaScript origins"
 as `localhost:8080`) following
@@ -12,14 +20,14 @@ the root of this project.
 
 ![](images/howto/gsi_config.png)
 
-### Configure Facebook Login
+### Step 2. Configure Facebook Login
 
 [Create a project](https://developers.facebook.com/), copy the App ID and paste it to
 line 280 of `static/scripts/app.js`.
 
 ![](images/howto/fb_config.png)
 
-### Install dependencies
+### Step 3. Install dependencies
 After checking out this repository, do the following:
 
 ```
@@ -28,15 +36,15 @@ $ git submodule update
 $ npm install
 ```
 
-### Run the code
+python dependencies and javascript dependencies will be resolved by running `npm install`.
+
+### Step 4. Run the code
 ```
 $ dev_appserver.py .
 ```
 
-python dependencies and javascript dependencies will be resolved just by running `npm install`.
-
-## What is this website about?
-This website is a demo of an open standard for the web - [Credential Management
+## What is this demo about?
+This is a demo of an open standard for the web - [Credential Management
 API](https://w3c.github.io/webappsec-credential-management/). The Credential
 Management API allows you to store and retrieve user's credential information
 from and to browsers programatically using JavaScript. For example, Google
@@ -115,7 +123,7 @@ those accounts. Try clicking on "Sign In" button. You should now see list of all
 stored accounts.
 ![](images/howto/5.png)
 
-### Step 6. Try on different device
+### Step 6. Try on different devices
 Now switch your device. It could be another PC, Chromebook or Android device -
 anywhere Google Chrome can run. Make sure to meet the same conditions as Step 0.
 Access

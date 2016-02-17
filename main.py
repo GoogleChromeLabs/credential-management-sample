@@ -205,6 +205,6 @@ def unregister():
         return make_response('Failed', 400)
 
 
-@app.route('/signout', methods=['GET', 'POST'])
+@app.route('/signout', methods=['POST'])
 def signout():
     return make_response(json.dumps({}), 200)
