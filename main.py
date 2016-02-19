@@ -21,7 +21,6 @@ import os
 import binascii
 import json
 import urllib
-from datetime import timedelta
 from bcrypt import bcrypt
 from flask import Flask, abort, request, make_response, render_template, session
 from oauth2client import client, crypt
@@ -175,6 +174,8 @@ def register():
 
         # Hash password
         password = CredentialStore.hash(request.form['password'])
+        # Perform relevant sanitization/validation on your own code.
+        # This demo omits them on purpose for simplicity.
         profile = {
             'id':       request.form.get('email', None),
             'email':    request.form.get('email', None),

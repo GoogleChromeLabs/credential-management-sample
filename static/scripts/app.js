@@ -39,9 +39,9 @@ app.listeners = {
 /**
  * Store credential information using Credential Management API
  * @param  {String} provider Credential type string.
- * @param  {FormData|Object} _cred    FormData or JS Object that contains
- *                                    credential information.
- * @return {Promise}          Resolves when stored, rejects when skipped.
+ * @param  {FormData|Object} _cred FormData or JS Object that contains
+ *                                 credential information.
+ * @return {Promise} Resolves when stored, rejects when skipped.
  */
 app._storeCred = function(provider, _cred) {
   return new Promise(function(resolve, reject) {
@@ -85,7 +85,7 @@ app._storeCred = function(provider, _cred) {
 /**
  * Let users sign-in without typing credentials
  * @param  {Boolean} suppressUI Determines if user mediation is required.
- * @return {Promise}            Resolves if credential info is available.
+ * @return {Promise} Resolves if credential info is available.
  */
 app._autoSignIn = function(suppressUI) {
   return new Promise(function(resolve, reject) {
@@ -104,6 +104,13 @@ app._autoSignIn = function(suppressUI) {
             case 'password':
               // Change form `id` name to `email`
               cred.idName = 'email';
+              // Include CSRF token in the credential object
+              var csrf_token = new FormData();
+              csrf_token.append('csrf_token',
+                  document.querySelector('#csrf_token').value);
+              // Note `.additionalData` accepts `FormData` which
+              // typically includes the CSRF token.
+              cred.additionalData = csrf_token;
               // Return Promise from `pwSignIn`
               return app.pwSignIn(cred);
             case 'federated':
@@ -130,11 +137,10 @@ app._autoSignIn = function(suppressUI) {
 };
 
 /**
- * POST-ing authentication credential information flow
+ * Authentication flow with our own server
  * @param  {String} provider Credential type string.
- * @param  {CredentialObject} cred     CredentialObject obtained via CM API
- * @return {Promise}          Resolves when successfully authenticated with
- *                            our server.
+ * @param  {FormData|CredentialObject} cred FormData or CredentialObject
+ * @return {Promise} Resolves when successfully authenticated
  */
 app._authFlow = function(provider, cred) {
   return new Promise(function(resolve, reject) {
@@ -181,25 +187,25 @@ app._authFlow = function(provider, cred) {
 app.onPwSignIn = function() {
   // Construct `FormData` object from actual `form`
   var form = new FormData(this.$.form);
-  // Store credential information before posting
-  app._storeCred(PASSWORD_LOGIN, form)
-  .then(function() {
-    app.pwSignIn(form);
+  // Don't forget to include the CSRF Token.
+  form.append('csrf_token', document.querySelector('#csrf_token').value);
+
+  // Sign-In with our own server
+  app.pwSignIn(form)
+  .then(function(profile) {
+    // `profile` may involve user name returned by the server
+    form.append('name', profile.name);
+    // Store credential information before posting
+    app._storeCred(PASSWORD_LOGIN, form);
   });
 };
 
 /**
  * Let user sign-in using id/password
- * @param  {CredentialObject} cred Credential Object obtained via CM API
- * @return {Promise}      Returns result of `_authFlow()`
+ * @param  {FormData|CredentialObject} cred FormData or CredentialObject
+ * @return {Promise} Returns result of `_authFlow()`
  */
 app.pwSignIn = function(cred) {
-  // Include CSRF token in the credential object
-  var csrf_token = new FormData();
-  csrf_token.append('csrf_token', document.querySelector('#csrf_token').value);
-  // Note `.additionalData` accepts `FormData` which typically includes
-  // the CSRF token.
-  cred.additionalData = csrf_token;
   return app._authFlow(PASSWORD_LOGIN, cred);
 };
 
@@ -218,7 +224,7 @@ app.onGSignIn = function() {
 /**
  * Let user sign-in using Google Sign-in
  * @param  {String} id Preferred Gmail address for user to sign-in
- * @return {Promise}    Returns result of authFlow
+ * @return {Promise} Returns result of authFlow
  */
 app.gSignIn = function(id) {
   var auth2 = gapi.auth2.getAuthInstance();
@@ -287,41 +293,44 @@ app.fbSignIn = function() {
  */
 app.onRegister = function() {
   var form = new FormData(document.querySelector('#regForm'));
-  // Store user information as this is registration using id/password
-  app._storeCred(PASSWORD_LOGIN, form).then(function() {
-    // Don't forget to include the CSRF Token.
-    form.append('csrf_token', document.querySelector('#csrf_token').value);
-    fetch('/register', {
-      method:       'POST',
-      body:         form,
-      // `credentials:'include'` is required to include cookie on `fetch`
-      credentials:  'include'
-    }).then(function(res) {
-      if (res.status == 200) {
-        return res.json();
-      } else {
-        throw 'Response code: ' + res.status;
-      }
-    }).then(function(profile) {
-      if (profile && profile.name && profile.email) {
-        app.fire('show-toast', {
-          text: 'Thanks for signing up!'
-        });
-        // Polymer will taking care of filling up user info on HTML template
-        app.userProfile = {
-          id:       profile.id,
-          name:     profile.name,
-          email:    profile.email,
-          imageUrl: profile.imageUrl || DEFAULT_IMG
-        };
-        app.$.dialog.close();
-      } else {
-        throw 'Authentication failed';
-      }
-    }).catch(function(e) {
+  // Don't forget to include the CSRF Token.
+  form.append('csrf_token', document.querySelector('#csrf_token').value);
+
+  fetch('/register', {
+    method:       'POST',
+    body:         form,
+    // `credentials:'include'` is required to include cookie on `fetch`
+    credentials:  'include'
+  }).then(function(res) {
+    if (res.status == 200) {
+      return res.json();
+    } else {
+      throw 'Response code: ' + res.status;
+    }
+  }).then(function(profile) {
+    if (profile && profile.name && profile.email) {
       app.fire('show-toast', {
-        text: e
+        text: 'Thanks for signing up!'
       });
+      // Polymer will taking care of filling up user info on HTML template
+      app.userProfile = {
+        id:       profile.id,
+        name:     profile.name,
+        email:    profile.email,
+        imageUrl: profile.imageUrl || DEFAULT_IMG
+      };
+      app.$.dialog.close();
+
+      // Append `name` as part of saved credential information
+      form.append('name', profile.name);
+      // Store user information as this is registration using id/password
+      app._storeCred(PASSWORD_LOGIN, form);
+    } else {
+      throw 'Authentication failed';
+    }
+  }).catch(function(e) {
+    app.fire('show-toast', {
+      text: e
     });
   });
 };
@@ -394,7 +403,7 @@ app.signOut = function() {
 /**
  * User is signed in. Fill user info.
  * @param  {Object} res Profile information object
- * @return {Promise}     Resolves when authentication succeeded.
+ * @return {Promise} Resolves when authentication succeeded.
  */
 app.signedIn = function(res) {
   return new Promise(function(resolve, reject) {
