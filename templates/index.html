@@ -73,7 +73,7 @@
 </head>
 
 <body unresolved class="fullbleed layout vertical">
-  <input id="csrf_token" type="hidden" name="csrf_token" value="{{csrf_token}}" />
+  <input id="csrf_token" type="hidden" name="csrf_token" value="{{csrf_token}}" />{% raw %}
   <template id="app" is="dom-bind">
     <paper-dialog id="dialog" modal>
       <paper-dialog-scrollable>
@@ -106,7 +106,7 @@
         <paper-toolbar id="drawerToolbar">
           <span class="paper-font-title">Menu</span>
         </paper-toolbar>
-        <paper-menu class="content" selected="[[selected]]">
+        <paper-menu class="content" selected="{{selected}}">
           <paper-item>Home</paper-item>
           <paper-item>How to use</paper-item>
           <template is="dom-if" if="[[userProfile]]">
@@ -123,24 +123,24 @@
         <paper-toolbar id="mainToolbar">
           <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle>
           </paper-icon-button>
-          <div class="flex paper-font-title">
+          <div class="flex title">
             Credential Management API Sample
           </div>
 
           <!-- Toolbar icons -->
           <template is="dom-if" if="[[!userProfile]]">
-            <paper-button raised on-tap="openDialog" raised>
+            <paper-button on-tap="openDialog" raised>
               Sign In
             </paper-button>
           </template>
           <template is="dom-if" if="[[userProfile]]">
-            <paper-button raised on-tap="signOut" raised>Sign Out</paper-button>
+            <paper-button on-tap="signOut" raised>Sign Out</paper-button>
           </template>
         </paper-toolbar>
 
         <!-- Main Content -->
         <div class="content">
-          <iron-pages selected="[[selected]]">
+          <iron-pages selected="{{selected}}">
             <div class="layout center vertical">
               <template is="dom-if" if="[[!cmaEnabled]]">
                 <p>Credential Management API is not available on your browser.
@@ -183,7 +183,7 @@
                   </div>
                 </paper-card>
               </template>
-            </div>
+            </div>{% endraw %}
             <div class="layout vertical">
 
 <h2>What is this website about?</h2>

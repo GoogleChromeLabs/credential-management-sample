@@ -36,10 +36,12 @@ app = Flask(
 )
 app.debug = True
 
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
-SECRET_KEY = 'abcde'
+CLIENT_ID = json.loads(open('client_secrets.json', 'r')
+                       .read())['web']['client_id']
 
 # On this sample, this is not really a secret
+# Make sure to change SECRET_KEY for your own purposes
+SECRET_KEY = 'abcde'
 app.config.update(
     SECRET_KEY=SECRET_KEY
 )
@@ -76,8 +78,8 @@ def csrf_protect():
 def index():
     if 'csrf_token' not in session:
         session['csrf_token'] = binascii.hexlify(os.urandom(24))
-    return render_template('index.html',
-        client_id=CLIENT_ID, csrf_token=session['csrf_token'])
+    return render_template('index.html', client_id=CLIENT_ID,
+                           csrf_token=session['csrf_token'])
 
 
 @app.route('/auth/password', methods=['POST'])
@@ -113,10 +115,11 @@ def gauth():
         id_token = request.form['id_token']
         try:
             idinfo = client.verify_id_token(id_token, CLIENT_ID)
+            if idinfo['aud'] != CLIENT_ID:
+                raise crypt.AppIdentityError('Wrong Audience.')
             if idinfo['iss'] not in ['accounts.google.com',
                                      'https://accounts.google.com']:
                 raise crypt.AppIdentityError('Wrong Issuer.')
-            # TODO: Check if any other verification needed
         except crypt.AppIdentityError:
             abort(401)
 
