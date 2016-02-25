@@ -22,7 +22,7 @@ import binascii
 import json
 import urllib
 from bcrypt import bcrypt
-from flask import Flask, abort, request, make_response, render_template, session
+from flask import Flask, request, make_response, render_template, session
 from oauth2client import client, crypt
 
 from google.appengine.ext import ndb
@@ -36,7 +36,8 @@ app = Flask(
 )
 app.debug = True
 
-CLIENT_ID = json.loads(open('client_secrets.json', 'r').read())['web']['client_id']
+CLIENT_ID = json.loads(open('client_secrets.json', 'r')
+                       .read())['web']['client_id']
 SECRET_KEY = 'abcde'
 
 # On this sample, this is not really a secret
@@ -69,15 +70,15 @@ def csrf_protect():
     if request.method == 'POST':
         csrf_token = session.get('csrf_token', None)
         if not csrf_token or csrf_token != request.form.get('csrf_token'):
-            abort(403)
+            make_response('', 403)
 
 
 @app.route('/')
 def index():
     if 'csrf_token' not in session:
         session['csrf_token'] = binascii.hexlify(os.urandom(24))
-    return render_template('index.html',
-        client_id=CLIENT_ID, csrf_token=session['csrf_token'])
+    return render_template('index.html', client_id=CLIENT_ID,
+                           csrf_token=session['csrf_token'])
 
 
 @app.route('/auth/password', methods=['POST'])
@@ -85,21 +86,18 @@ def pwauth():
     email = request.form.get('email', None)
     password = request.form.get('password', None)
 
-    if email and password:
-        store = CredentialStore.get_by_id(request.form['email'])
-        if store is not None:
-            profile = store.profile
-        else:
-            abort(401)
+    store = CredentialStore.get_by_id(email)
+    if store is not None:
+        profile = store.profile
     else:
-        abort(400)
+        make_response('Authentication failed.', 401)
 
     if profile is None:
-        abort(401)
+        make_response('Authentication failed.', 401)
 
     # Apply same hash as stored password
     if CredentialStore.verify(password, profile['password']) is False:
-        abort(401)
+        make_response('Authentication failed.', 401)
 
     # Get rid of password
     profile.pop('password')
@@ -109,16 +107,14 @@ def pwauth():
 
 @app.route('/auth/google', methods=['POST'])
 def gauth():
-    if 'id_token' in request.form:
-        id_token = request.form['id_token']
-        try:
-            idinfo = client.verify_id_token(id_token, CLIENT_ID)
-            if idinfo['iss'] not in ['accounts.google.com',
-                                     'https://accounts.google.com']:
-                raise crypt.AppIdentityError('Wrong Issuer.')
-            # TODO: Check if any other verification needed
-        except crypt.AppIdentityError:
-            abort(401)
+    id_token = request.form.get('id_token', '')
+    idinfo = client.verify_id_token(id_token, CLIENT_ID)
+
+    if idinfo['aud'] != CLIENT_ID:
+        return make_response('Wrong Audience.', 401)
+    if idinfo['iss'] not in ['accounts.google.com',
+                             'https://accounts.google.com']:
+        return make_response('Wrong Issuer.', 401)
 
     # For now, we'll always store profile data after successfully
     # verifying the token and consider the user authenticated.
@@ -137,10 +133,10 @@ def gauth():
 
 @app.route('/auth/facebook', methods=['POST'])
 def fblogin():
-    if 'access_token' in request.form:
-        access_token = request.form['access_token']
-    else:
-        abort(401)
+    access_token = request.form.get('access_token', None)
+
+    if access_token is None:
+        make_response('Authentication failed.', 401)
 
     params = {
         'input_token':  access_token,
@@ -151,7 +147,7 @@ def fblogin():
     result = json.loads(r.content)
 
     if result['data']['is_valid'] is False:
-        abort(401)
+        make_response('Authentication failed.', 401)
 
     r = urlfetch.fetch('https://graph.facebook.com/me?fields=name,email',
                        headers={'Authorization': 'OAuth '+access_token})
@@ -184,7 +180,7 @@ def register():
             'imageUrl': 'images/default_img.png'
         }
     else:
-        abort(400)
+        make_response('Bad request', 400)
 
     # overwrite existing user
     store = CredentialStore(id=profile['id'], profile=profile)

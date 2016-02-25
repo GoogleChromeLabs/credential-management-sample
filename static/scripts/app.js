@@ -84,10 +84,10 @@ app._storeCred = function(provider, _cred) {
 
 /**
  * Let users sign-in without typing credentials
- * @param  {Boolean} suppressUI Determines if user mediation is required.
+ * @param  {Boolean} unmediated Determines if user mediation is required.
  * @return {Promise} Resolves if credential info is available.
  */
-app._autoSignIn = function(suppressUI) {
+app._autoSignIn = function(unmediated) {
   return new Promise(function(resolve, reject) {
     if (app.cmaEnabled) {
       // Actual Credential Management API call to get credential object
@@ -96,7 +96,7 @@ app._autoSignIn = function(suppressUI) {
         federated: {
           provider: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
         },
-        suppressUI: suppressUI
+        unmediated: unmediated
       }).then(function(cred) {
         // If credential object is available
         if (cred) {

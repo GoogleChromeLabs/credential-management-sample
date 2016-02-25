@@ -46,10 +46,10 @@
       -moz-clip-path: circle(50% at 50% 50%);
       -o-clip-path: circle(50% at 50% 50%);
     }
-    #gsignin img {
+    .gsignin img {
       cursor: pointer;
     }
-    #fbsignin img {
+    .fbsignin img {
       cursor: pointer;
       width: 186px;
       margin: 4px;
@@ -79,8 +79,8 @@
       <paper-dialog-scrollable>
         <h2>Please sign-in</h2>
         <form is="iron-form" id="form" method="post">
-          <paper-input id="lemail" name="email" label="email"></paper-input>
-          <paper-input id="lpassword" type="password" name="password" label="password"></paper-input>
+          <paper-input id="lemail" name="email" label="email" autocomplete="email"></paper-input>
+          <paper-input id="lpassword" type="password" name="password" label="password" autocomplete="password"></paper-input>
           <div class="buttons">
             <paper-button dialog-dismiss raised>Canel</paper-button>
             <paper-button on-tap="onPwSignIn" raised>Submit</paper-button>
@@ -89,10 +89,10 @@
         <div class="layout horizontal center-justified">
           <span>or</span>
         </div>
-        <div id="gsignin" on-tap="onGSignIn">
+        <div class="gsignin" on-tap="onGSignIn">
           <img src="images/google_signin.png" />
         </div>
-        <div id="fbsignin" on-tap="onFbSignIn">
+        <div class="fbsignin" on-tap="onFbSignIn">
           <img src="images/facebook_signin.png" />
         </div>
       </paper-dialog-scrollable>
@@ -175,10 +175,10 @@
                   <div class="layout horizontal center-justified">
                     <span>or</span>
                   </div>
-                  <div id="gsignin" on-tap="onGSignIn">
+                  <div class="gsignin" on-tap="onGSignIn">
                     <img src="images/google_signin.png" />
                   </div>
-                  <div id="fbsignin" on-tap="onFbSignIn">
+                  <div class="fbsignin" on-tap="onFbSignIn">
                     <img src="images/facebook_signin.png" />
                   </div>
                 </paper-card>
