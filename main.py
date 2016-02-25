@@ -23,7 +23,7 @@ import json
 import urllib
 from bcrypt import bcrypt
 from flask import Flask, request, make_response, render_template, session
-from oauth2client import client, crypt
+from oauth2client import client
 
 from google.appengine.ext import ndb
 from google.appengine.api import urlfetch
@@ -38,9 +38,10 @@ app.debug = True
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r')
                        .read())['web']['client_id']
-SECRET_KEY = 'abcde'
 
 # On this sample, this is not really a secret
+# Make sure to change SECRET_KEY for your own purposes
+SECRET_KEY = 'abcde'
 app.config.update(
     SECRET_KEY=SECRET_KEY
 )
@@ -107,6 +108,7 @@ def pwauth():
 
 @app.route('/auth/google', methods=['POST'])
 def gauth():
+
     id_token = request.form.get('id_token', '')
     idinfo = client.verify_id_token(id_token, CLIENT_ID)
 

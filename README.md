@@ -18,14 +18,14 @@ as `localhost:8080`) following
 Then download the JSON file and rename it to `client_secrets.json`, place it at
 the root of this project.
 
-![](images/howto/gsi_config.png)
+![](static/images/howto/gsi_config.png)
 
 ### Step 2. Configure Facebook Login
 
 [Create a project](https://developers.facebook.com/), copy the App ID and paste it to
 line 280 of `static/scripts/app.js`.
 
-![](images/howto/fb_config.png)
+![](static/images/howto/fb_config.png)
 
 ### Step 3. Install dependencies
 After checking out this repository, do the following:
@@ -73,7 +73,7 @@ On
 enter name, email address and password (don't put a real password!) and sign up.
 You will then be signed-in and your browser will ask you to store credential
 information in the password manager.
-![](images/howto/1.png)
+![](static/images/howto/1.png)
 
 Choose "Save Password" to save the credential.
 
@@ -87,7 +87,7 @@ Now you have the credential manager enabled and you will be able to sign-in
 automatically. Let's reload the page. You will see a popup saying
 "Signing in as …" and got signed in. This is the magic of the auto sign-in
 feature that the Credential Management API provides.
-![](images/howto/2.png)
+![](static/images/howto/2.png)
 
 ### Step 3. Sign out to enable the "mediation mode"
 Signing out from the site by clicking "Sign Out" brings you back to signed
@@ -99,7 +99,7 @@ when a user explicitly clicks on "sign out" button.
 ### Step 4. Explicit sign-in and disable the "mediation mode"
 By clicking on "Sign In", a popup shows up and asks you to choose an account.
 
-![](images/howto/3.png)
+![](static/images/howto/3.png)
 
 By clicking on the account you have just created, you can sign in without typing
 a password. This is called "semi auto sign-in" which will also disable the
@@ -109,7 +109,7 @@ By choosing "No thanks", you can skip "semi-auto sign-in" and see a sign-in
 form which also happens on browsers where Credential Management API is not
 available.
 
-![](images/howto/4.png)
+![](static/images/howto/4.png)
 
 ### Step 5. Add more accounts using Federation
 When you are seeing sign-in form, choose Google Sign-In (or Facebook Login) to
@@ -121,7 +121,8 @@ Notice that by reloading the page, you won't auto signed in any longer. This is
 because you have multiple accounts and you will have to manually select one of
 those accounts. Try clicking on "Sign In" button. You should now see list of all
 stored accounts.
-![](images/howto/5.png)
+
+![](static/images/howto/5.png)
 
 ### Step 6. Try on different devices
 Now switch your device. It could be another PC, Chromebook or Android device -
@@ -132,4 +133,4 @@ Access
 See if credentials you've stored on previous browser are successfully synced
 across and you have multiple accounts to choose from when clicking on "Sign In".
 
-![](images/howto/6.png)
+![](static/images/howto/6.png)
