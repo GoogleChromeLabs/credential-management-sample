@@ -71,7 +71,7 @@ def csrf_protect():
     if request.method == 'POST':
         csrf_token = session.get('csrf_token', None)
         if not csrf_token or csrf_token != request.form.get('csrf_token'):
-            make_response('', 403)
+            return make_response('', 403)
 
 
 @app.route('/')
@@ -88,17 +88,17 @@ def pwauth():
     password = request.form.get('password', None)
 
     store = CredentialStore.get_by_id(email)
-    if store is not None:
-        profile = store.profile
-    else:
-        make_response('Authentication failed.', 401)
+    if store is None:
+        return make_response('Authentication failed.', 401)
+
+    profile = store.profile
 
     if profile is None:
-        make_response('Authentication failed.', 401)
+        return make_response('Authentication failed.', 401)
 
     # Apply same hash as stored password
     if CredentialStore.verify(password, profile['password']) is False:
-        make_response('Authentication failed.', 401)
+        return make_response('Authentication failed.', 401)
 
     # Get rid of password
     profile.pop('password')
@@ -138,7 +138,7 @@ def fblogin():
     access_token = request.form.get('access_token', None)
 
     if access_token is None:
-        make_response('Authentication failed.', 401)
+        return make_response('Authentication failed.', 401)
 
     params = {
         'input_token':  access_token,
@@ -149,7 +149,7 @@ def fblogin():
     result = json.loads(r.content)
 
     if result['data']['is_valid'] is False:
-        make_response('Authentication failed.', 401)
+        return make_response('Authentication failed.', 401)
 
     r = urlfetch.fetch('https://graph.facebook.com/me?fields=name,email',
                        headers={'Authorization': 'OAuth '+access_token})
@@ -182,7 +182,7 @@ def register():
             'imageUrl': 'images/default_img.png'
         }
     else:
-        make_response('Bad request', 400)
+        return make_response('Bad request', 400)
 
     # overwrite existing user
     store = CredentialStore(id=profile['id'], profile=profile)

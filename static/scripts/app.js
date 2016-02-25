@@ -94,7 +94,7 @@ app._autoSignIn = function(unmediated) {
       return navigator.credentials.get({
         password: true,
         federated: {
-          provider: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
+          providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
         },
         unmediated: unmediated
       }).then(function(cred) {
