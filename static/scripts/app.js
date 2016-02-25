@@ -308,7 +308,7 @@ app.onRegister = function() {
       throw 'Response code: ' + res.status;
     }
   }).then(function(profile) {
-    if (profile && profile.name && profile.email) {
+    if (profile && profile.email) {
       app.fire('show-toast', {
         text: 'Thanks for signing up!'
       });
@@ -321,12 +321,10 @@ app.onRegister = function() {
       };
       app.$.dialog.close();
 
-      // Append `name` as part of saved credential information
-      form.append('name', profile.name);
       // Store user information as this is registration using id/password
       app._storeCred(PASSWORD_LOGIN, form);
     } else {
-      throw 'Authentication failed';
+      throw 'Registration failed';
     }
   }).catch(function(e) {
     app.fire('show-toast', {
