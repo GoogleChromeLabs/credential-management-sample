@@ -17,8 +17,8 @@
 
 var FB_APPID       = '705099176296510';
 var PASSWORD_LOGIN = 'password';
-var GOOGLE_SIGNIN  = 'https://accounts.google.com/';
-var FACEBOOK_LOGIN = 'https://www.facebook.com/';
+var GOOGLE_SIGNIN  = 'https://accounts.google.com';
+var FACEBOOK_LOGIN = 'https://www.facebook.com';
 var DEFAULT_IMG    = '/images/default_img.png';
 
 /*

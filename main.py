@@ -103,6 +103,7 @@ def pwauth():
     # Get rid of password
     profile.pop('password')
 
+    # Not making a session for demo purpose/simplicity
     return make_response(json.dumps(profile), 200)
 
 
@@ -130,6 +131,7 @@ def gauth():
         'email':     idinfo.get('email', None)
     }
 
+    # Not making a session for demo purpose/simplicity
     return make_response(json.dumps(profile), 200)
 
 
@@ -161,6 +163,7 @@ def fblogin():
     profile['imageUrl'] = 'https://graph.facebook.com/' + profile['id'] +\
         '/picture?width=96&height=96'
 
+    # Not making a session for demo purpose/simplicity
     return make_response(json.dumps(profile), 200)
 
 
@@ -189,6 +192,7 @@ def register():
     store.put()
     profile.pop('password')
 
+    # Not making a session for demo purpose/simplicity
     return make_response(json.dumps(profile), 200)
 
 
@@ -197,8 +201,10 @@ def unregister():
     if 'id' in request.form:
         store = CredentialStore.get_by_id(request.form['id'])
         profile = store.profile
+
     if profile:
         CredentialStore.remove(str(request.form['id']))
+        # Not terminating a session for demo purpose/simplicity
         return make_response('Success', 200)
     else:
         return make_response('Failed', 400)
@@ -206,4 +212,5 @@ def unregister():
 
 @app.route('/signout', methods=['POST'])
 def signout():
+    # Not terminating a session for demo purpose/simplicity
     return make_response(json.dumps({}), 200)

@@ -1,45 +1,47 @@
-- Demo website can be found [here](https://credential-management-sample.appspot.com).  
-- Source code can be found [here](https://github.com/GoogleChrome/credential-management-sample/).
+# Credential Management API Sample
 
-## Running on your own environment
+- Try [a live demo](https://credential-management-sample.appspot.com).
+- Learn [how Credential Management API works]().
+
+## Installation
 
 ### Prerequisites
-- Git
+- Google App Engine
+- Python 2.7
+- pip
 - Node.js
 - NPM
-- [Python AppEngine](https://cloud.google.com/appengine/docs/python/)
-- pip
+- Bower
 
 ### Step 1. Configure Google Sign-In
-
-Create a project and new OAuth client ID (set "Authorized JavaScript origins"
-as `localhost:8080`) following
-[these instructions](https://developers.google.com/identity/sign-in/web/devconsole-project).  
-Then download the JSON file and rename it to `client_secrets.json`, place it at
-the root of this project.
+- Set up a new project at [Google Developers Console](https://console.developers.google.com/)
+- Create credentials
+- Download `client_secret_****.json`, rename it to `client_secrets.json`
+- Place `client_secrets.json` at root of this project
 
 ![](static/images/howto/gsi_config.png)
 
 ### Step 2. Configure Facebook Login
-
-[Create a project](https://developers.facebook.com/), copy the App ID and paste it to
-line 280 of `static/scripts/app.js`.
+- Set up a new project at [Facebook Developers](https://developers.facebook.com/)
+- Set "Site URL" `http://localhost:8080`
+- Copy and paste the App ID at line 18 of `static/scripts/app.js`.
 
 ![](static/images/howto/fb_config.png)
 
 ### Step 3. Install dependencies
-After checking out this repository, do the following:
+- After cloning this repository, do the following:
 
-```
+```sh
+# Clone submodules
 $ git submodule init
 $ git submodule update
+# This command will install dependencies
 $ npm install
 ```
 
-python dependencies and javascript dependencies will be resolved by running `npm install`.
-
-### Step 4. Run the code
-```
+### Step 4. Run the app
+```sh
+# Launch App Engine at root dir of this project with following command
 $ dev_appserver.py .
 ```
 
