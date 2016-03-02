@@ -18,6 +18,7 @@ from google.appengine.ext import vendor
 vendor.add('lib')
 
 import os
+import sys
 import binascii
 import json
 import urllib
@@ -35,6 +36,9 @@ app = Flask(
     template_folder='templates'
 )
 app.debug = True
+
+if os.path.isfile('client_secrets.json') is False:
+    sys.exit('client_secrets.json not found.')
 
 CLIENT_ID = json.loads(open('client_secrets.json', 'r')
                        .read())['web']['client_id']
@@ -127,9 +131,6 @@ def gauth():
     # Verify the `id_token` using API Client Library
     idinfo = client.verify_id_token(id_token, CLIENT_ID)
 
-    # Additional verification: See if `aud` matches CLIENT_ID
-    if idinfo['aud'] != CLIENT_ID:
-        return make_response('Wrong Audience.', 401)
     # Additional verification: See if `iss` matches Google issuer string
     if idinfo['iss'] not in ['accounts.google.com',
                              'https://accounts.google.com']:
