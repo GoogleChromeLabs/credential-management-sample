@@ -43,7 +43,7 @@ app.listeners = {
  *                                 credential information.
  * @return {Promise} Resolves when stored, rejects when skipped.
  */
-app._storeCred = function(provider, _cred) {
+app._storeCredential = function(provider, _cred) {
   return new Promise(function(resolve, reject) {
     var cred = null;
     // Is Credential Management API available?
@@ -142,7 +142,7 @@ app._autoSignIn = function(unmediated) {
  * @param  {FormData|CredentialObject} cred FormData or CredentialObject
  * @return {Promise} Resolves when successfully authenticated
  */
-app._authFlow = function(provider, cred) {
+app._authenticateWithServer = function(provider, cred) {
   return new Promise(function(resolve, reject) {
     var url = '';
     switch (provider) {
@@ -196,17 +196,17 @@ app.onPwSignIn = function() {
     // `profile` may involve user name returned by the server
     form.append('name', profile.name);
     // Store credential information before posting
-    app._storeCred(PASSWORD_LOGIN, form);
+    app._storeCredential(PASSWORD_LOGIN, form);
   });
 };
 
 /**
  * Let user sign-in using id/password
  * @param  {FormData|CredentialObject} cred FormData or CredentialObject
- * @return {Promise} Returns result of `_authFlow()`
+ * @return {Promise} Returns result of `_authenticateWithServer()`
  */
 app.pwSignIn = function(cred) {
-  return app._authFlow(PASSWORD_LOGIN, cred);
+  return app._authenticateWithServer(PASSWORD_LOGIN, cred);
 };
 
 /**
@@ -217,7 +217,7 @@ app.onGSignIn = function() {
   app.gSignIn()
   .then(function(profile) {
     // Store credential information after successful authentication
-    app._storeCred(GOOGLE_SIGNIN, profile);
+    app._storeCredential(GOOGLE_SIGNIN, profile);
   });
 };
 
@@ -239,7 +239,7 @@ app.gSignIn = function(id) {
     form.append('id_token', googleUser.getAuthResponse().id_token);
     // Don't forget to include the CSRF Token.
     form.append('csrf_token', document.querySelector('#csrf_token').value);
-    return app._authFlow(GOOGLE_SIGNIN, form);
+    return app._authenticateWithServer(GOOGLE_SIGNIN, form);
   });
 };
 
@@ -250,7 +250,7 @@ app.gSignIn = function(id) {
 app.onFbSignIn = function() {
   app.fbSignIn().then(function(profile) {
     // Store credential information after successful authentication
-    app._storeCred(FACEBOOK_LOGIN, profile);
+    app._storeCredential(FACEBOOK_LOGIN, profile);
   });
 };
 
@@ -278,10 +278,10 @@ app.fbSignIn = function() {
       form.append('access_token', res.authResponse.accessToken);
       // Don't forget to include the CSRF Token.
       form.append('csrf_token', document.querySelector('#csrf_token').value);
-      return app._authFlow(FACEBOOK_LOGIN, form);
+      return app._authenticateWithServer(FACEBOOK_LOGIN, form);
     } else {
       // When authentication was rejected by Facebook
-      reject();
+      return Promise.reject();
     }
   });
 };
@@ -322,7 +322,7 @@ app.onRegister = function() {
       app.$.dialog.close();
 
       // Store user information as this is registration using id/password
-      app._storeCred(PASSWORD_LOGIN, form);
+      app._storeCredential(PASSWORD_LOGIN, form);
     } else {
       throw 'Registration failed';
     }
