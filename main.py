@@ -37,15 +37,18 @@ app = Flask(
 )
 app.debug = True
 
+# Does `client_secrets.json` file exist?
 if os.path.isfile('client_secrets.json') is False:
     sys.exit('client_secrets.json not found.')
 
-CLIENT_ID = json.loads(open('client_secrets.json', 'r')
-                       .read())['web']['client_id']
+# Load `client_secrets.json` file
+keys = json.loads(open('client_secrets.json', 'r').read())['web']
 
-# On this sample, this is not really a secret
-# Make sure to change SECRET_KEY for your own purposes
-SECRET_KEY = 'abcde'
+CLIENT_ID = keys['client_id']
+
+# `SECRET_KEY` can be anything as long as it is hidden, but we use
+# `client_secret` here for convenience
+SECRET_KEY = keys['client_secret']
 app.config.update(
     SECRET_KEY=SECRET_KEY
 )
