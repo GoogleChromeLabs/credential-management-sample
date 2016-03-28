@@ -192,71 +192,133 @@
             </div>{% endraw %}
             <div class="layout vertical howto">
 
-              <h2>What is this website?</h2>
+              <h2>What does this website demostrate?</h2>
 
-              <p>This is a demo website of a standard-track proposal at the W3C - The <a href="https://w3c.github.io/webappsec-credential-management/">Credential Management API</a>. It helps developers with 3 aspects of user credentials enabling automatic sign-in.  </p>
+              <p>This is a demo website of The <a href="https://w3c.github.io/webappsec-credential-management/">
+              Credential Management API</a>.</p>
 
-              <ul>
-              <li>Store and retrieve credentials (typically id and password)</li>
-              <li>Store and retrieve federated account preference</li>
-              <li>Store and retrieve preference of federation protocol (not implemented in Chrome yet)</li>
-              </ul>
+              <p><b>TL;DR</b> Use Credential Management API to get users sign-in without hassle</p>
 
-              <p>With this API, you can let users sign-in to your website without typing passwords, or forward the user to an IdP of choice.  </p>
+              <h3>What is the Credential Management API?</h3>
+
+              <p>To provide a
+              sophisticated user experience, it's important to help users
+              authenticate themselves to your website. Authenticated users can
+              interact using a dedicated profile, sync data across devices,
+              process data while offline, the list goes on and on. But creating,
+              remembering and typing passwords tend to be cumbersome for end
+              users which leads them to re-using same passwords on different
+              sites. This of course entails a security risk.</p>
+
+              <p>A new <a
+              href="http://w3c.github.io/webappsec-credential-management/">Credential
+              Management API</a> has landed behind a flag in Chrome 50. It's a
+              standards-track proposal at the W3C that can store and retrieve
+              user's credential information using JavaScript. You can
+              incorporate the API's functionalities onto your existing website
+              relatively easy, without making changes to your backend.</p>
+
+              <p>There are 3 benefits for developers to implement the feature.
+              </p>
+
+              <ul><li>Enable users to sign in without typing passwords.
+              <ul><li>Resume session automatically when user is signed out
+              because of session expiration.</li></ul></li> <li>Help users
+              remember the federated account of their choice and enable auto
+              sign-in.</li> <li>Avoid saving invalid credentials upon failed
+              authentication or password update</li></ul>
+
+              <p>Here's how you can experience the benefits of using Credential
+              Management API on this website.</p>
 
               <h2>Prerequisite</h2>
 
-              <p>You can try out the Credential Management API on Chrome version later than 50 with <code>chrome://flags/#enable-credential-manager-api</code> flag turned on. Signed-in to Chrome profile is preferred.  </p>
+              <p>You can try out the Credential Management API on Chrome version
+              later than 50 with
+              <code>chrome://flags/#enable-credential-manager-api</code> flag
+              turned on. Signed-in to Chrome profile is preferred.  </p>
 
               <h2>How to experience</h2>
 
               <h3>Step 1. Sign up</h3>
 
               <img src="/images/howto/sign-up.png" alt="" title="" />
-              <p>Open the page, enter name, email address and password and sign up (Beware, even though password is stored encrypted, please don't enter real ones).</p>
+
+              <p>Open the page, enter name, email address and password and sign
+              up (Beware, even though password is stored encrypted, please don't
+              enter real ones).</p>
 
               <h3>Step 2. Save password</h3>
 
               <img src="/images/howto/save-password.png" alt="" title="" />
-              <p>You will then be signed-in and browser asks you to store credential information to the password manager. Tap "Save" to store the credential. <br />
-              You can find the saved credential information at <code>chrome://settings/passwords</code>.  </p>
+              <p>You will then be signed-in and browser asks you to store
+              credential information to the password manager. Tap "Save" to
+              store the credential. <br /> You can find the saved credential
+              information at <code>chrome://settings/passwords</code>.</p>
 
               <h3>Step 3. The first sign-in</h3>
 
               <img src="/images/howto/the-first-sign-in.png" alt="" title="" />
-              <p>Reload the page. You should be signed-out because this demo site doesn't keep sessions. Not auto-signed-in? Don't worry, this is expected. Tap "Sign-In". <br />
-              You should see an account chooser dialog. Press the account you have just signed-up with.  </p>
+
+              <p>Reload the page. You should be signed-out because this demo
+              site doesn't keep sessions. Not auto-signed-in? Don't worry, this
+              is expected. Tap "Sign-In". <br /> You should see an account
+              chooser dialog. Press the account you have just signed-up with.
+              </p>
 
               <h3>Step 4. Opt-in to Smart Lock</h3>
 
               <img src="/images/howto/opt-in-to-smart-lock.png" alt="" title="" />
-              <p>You should now see a dialog asking if you want to opt-in to Google Smart Lock. This will enable the feature to be turned on for other sites as well. You can turn this off manually by going to <code>chrome://settings/passwords</code>.  </p>
+
+              <p>You should now see a dialog asking if you want to opt-in to
+              Google Smart Lock. This will enable the feature to be turned on
+              for other sites as well. You can turn this off manually by going
+              to <code>chrome://settings/passwords</code>.</p>
 
               <h3>Step 5. Auto sign-in</h3>
 
               <img src="/images/howto/auto-sign-in.png" alt="" title="" />
-              <p>Now, try reload the page again. You should now see at the bottom of the page that you are automatically signed-in using the account you have just signed-up with, as you have turned on the feature.  </p>
+              <p>Now, try reload the page again. You should now see at the
+              bottom of the page that you are automatically signed-in using the
+              account you have just signed-up with, as you have turned on the
+              feature.</p>
 
               <h3>Step 6. Sign out to enable the "mediation mode"</h3>
 
-              <p>By signing out from the site by clicking on "Sign Out" brings you back to a signed out state. Try reload the page. You will notice that you won't be automatically signed-in. This is called the "mediation mode". The mediation mode prevents you from automatically sign-in. It's usually turned on when a user signs out on purpose. <br />
-              By user proactively signing-in, the "mediation mode" will be turned off. Tap "Sign-In" again.  </p>
+              <p>By signing out from the site by clicking on "Sign Out" brings
+              you back to a signed out state. Try reload the page. You will
+              notice that you won't be automatically signed-in. This is called
+              the "mediation mode". The mediation mode prevents you from
+              automatically sign-in. It's usually turned on when a user signs
+              out on purpose. <br /> By user proactively signing-in, the
+              "mediation mode" will be turned off. Tap "Sign-In" again.</p>
 
               <h3>Step 7. Add second account</h3>
 
               <img src="/images/howto/add-second-account.png" alt="" title="" />
-              <p>At this time, instead of choosing an account, tap "Cancel". This will show you a login modal dialog. Choose "Sign-In with Google" (registration and login using Google Sign-In don't make any difference on this demo site). <br />
-              A popup window should show up so you can sign-in by allowing profile access.  </p>
+
+              <p>At this time, instead of choosing an account, tap "Cancel".
+              This will show you a login modal dialog. Choose "Sign-In with
+              Google" (registration and login using Google Sign-In don't make
+              any difference on this demo site). <br /> A popup window should
+              show up so you can sign-in by allowing profile access.</p>
 
               <h3>Step 8. Auto-sign-in with 2 accounts?</h3>
 
-              <img src="/images/howto/auto-sign-in-with-2-accounts.png" alt="" title="" />
-              <p>Now you should be able to add the second account to the site. Let's reload the page without signing-out and see what happens? <br />
-              OK, you are not automatically signed-in. This is because you have more than 1 account saved to the website. In this case, users have to explicitly tap on "Sign-In" and choose an account to sign-in with.  </p>
+              <img src="/images/howto/auto-sign-in-with-2-accounts.png" alt=""
+              title="" /> <p>Now you should be able to add the second account to
+              the site. Let's reload the page without signing-out and see what
+              happens? <br /> OK, you are not automatically signed-in. This is
+              because you have more than 1 account saved to the website. In this
+              case, users have to explicitly tap on "Sign-In" and choose an
+              account to sign-in with.</p>
 
               <h3>Step 9. Try on different device</h3>
 
-              <p>Now switch your device if you are signed-in to Chrome using a Google account. It could be another PC, Chromebook or another Android device - anywhere Google Chrome can run with the same profile.</p>
+              <p>Now switch your device if you are signed-in to Chrome using a
+              Google account. It could be another PC, Chromebook or another
+              Android device - anywhere Google Chrome can run with the same
+              profile.</p>
 
             </div>
           </iron-pages>
