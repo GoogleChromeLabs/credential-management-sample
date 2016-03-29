@@ -465,8 +465,13 @@ gapi.load('auth2', function() {
     // Try auto sign-in performance after initialization
     app._autoSignIn(true).then(function() {
       console.log('auto sign-in succeeded.');
-    }, function() {
+    }).catch(function() {
       console.log('auto sign-in was not performed.');
+      app._autoSignIn(false).then(function() {
+        console.log('manual sign-in succeeded.');
+      }, function() {
+        console.log('manual sign-in was not performed.');
+      });
     });
   }
 });
