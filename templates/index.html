@@ -85,8 +85,8 @@
       <paper-dialog-scrollable>
         <h2>Please sign-in</h2>
         <form is="iron-form" id="form" method="post">
-          <paper-input id="lemail" name="email" label="email" autocomplete="email"></paper-input>
-          <paper-input id="lpassword" type="password" name="password" label="password" autocomplete="password"></paper-input>
+          <paper-input id="lemail" name="email" label="email" autocomplete="username"></paper-input>
+          <paper-input id="lpassword" type="password" name="password" label="password" autocomplete="current-password"></paper-input>
           <div class="buttons">
             <paper-button dialog-dismiss raised>Canel</paper-button>
             <paper-button on-tap="onPwSignIn" raised>Submit</paper-button>
@@ -166,11 +166,11 @@
               <template is="dom-if" if="[[!userProfile]]">
                 <paper-card heading="Sign-up now!">
                   <form is="iron-form" id="regForm" method="post">
-                    <paper-input id="name" name="name" label="Your name">
+                    <paper-input id="name" name="name" label="Your name" autocomplete="name">
                     </paper-input>
-                    <paper-input id="email" name="email" label="Your email address">
+                    <paper-input id="email" name="email" label="Your email address" autocomplete="email">
                     </paper-input>
-                    <paper-input id="password" type="password" name="password" label="Password">
+                    <paper-input id="password" type="password" name="password" label="Password" autocomplete="new-password">
                     </paper-input>
                     <div class="layout horizontal around-justified">
                       <paper-button on-tap="onRegister" raised>

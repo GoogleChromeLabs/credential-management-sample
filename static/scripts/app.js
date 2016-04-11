@@ -50,26 +50,26 @@ app._storeCredential = function(provider, _cred) {
     if (app.cmaEnabled) {
       switch (provider) {
         // If trying to store id/password
-        case PASSWORD_LOGIN:
-          // Create `Credential` object for password
-          cred = new PasswordCredential({
-            id:       _cred.get('email'),
-            password: _cred.get('password'),
-            name:     _cred.get('name') || ''
-          });
-          break;
-        // If trying to store Google Sign-In credential
-        case GOOGLE_SIGNIN:
-        // If trying to store Facebook Login credential
-        case FACEBOOK_LOGIN:
-          // Create `Credential` object for federation
-          cred = new FederatedCredential({
-            id:       _cred.email,
-            name:     _cred.name,
-            iconURL:  _cred.imageUrl || DEFAULT_IMG,
-            provider: provider,
-          });
-          break;
+      case PASSWORD_LOGIN:
+        // Create `Credential` object for password
+        cred = new PasswordCredential({
+          id:       _cred.get('email'),
+          password: _cred.get('password'),
+          name:     _cred.get('name') || ''
+        });
+        break;
+      // If trying to store Google Sign-In credential
+      case GOOGLE_SIGNIN:
+      // If trying to store Facebook Login credential
+      case FACEBOOK_LOGIN:
+        // Create `Credential` object for federation
+        cred = new FederatedCredential({
+          id:       _cred.email,
+          name:     _cred.name,
+          iconURL:  _cred.imageUrl || DEFAULT_IMG,
+          provider: provider
+        });
+        break;
       }
       // Actual storing operation
       navigator.credentials.store(cred).then(function() {
@@ -101,28 +101,28 @@ app._autoSignIn = function(unmediated) {
         // If credential object is available
         if (cred) {
           switch (cred.type) {
-            case 'password':
-              // Change form `id` name to `email`
-              cred.idName = 'email';
-              // Include CSRF token in the credential object
-              var csrf_token = new FormData();
-              csrf_token.append('csrf_token',
-                  document.querySelector('#csrf_token').value);
-              // Note `.additionalData` accepts `FormData` which
-              // typically includes the CSRF token.
-              cred.additionalData = csrf_token;
-              // Return Promise from `pwSignIn`
-              return app.pwSignIn(cred);
-            case 'federated':
-              switch (cred.provider) {
-                case GOOGLE_SIGNIN:
-                  // Return Promise from `gSignIn`
-                  return app.gSignIn(cred.id);
-                case FACEBOOK_LOGIN:
-                  // Return Promise from `fbSignIn`
-                  return app.fbSignIn();
-              }
-              break;
+          case 'password':
+            // Change form `id` name to `email`
+            cred.idName = 'email';
+            // Include CSRF token in the credential object
+            var csrf_token = new FormData();
+            csrf_token.append('csrf_token',
+                document.querySelector('#csrf_token').value);
+            // Note `.additionalData` accepts `FormData` which
+            // typically includes the CSRF token.
+            cred.additionalData = csrf_token;
+            // Return Promise from `pwSignIn`
+            return app.pwSignIn(cred);
+          case 'federated':
+            switch (cred.provider) {
+            case GOOGLE_SIGNIN:
+              // Return Promise from `gSignIn`
+              return app.gSignIn(cred.id);
+            case FACEBOOK_LOGIN:
+              // Return Promise from `fbSignIn`
+              return app.fbSignIn();
+            }
+            break;
           }
         } else {
           // Reject if credential object is not available
@@ -146,15 +146,15 @@ app._authenticateWithServer = function(provider, cred) {
   return new Promise(function(resolve, reject) {
     var url = '';
     switch (provider) {
-      case FACEBOOK_LOGIN:
-        url = '/auth/facebook';
-        break;
-      case GOOGLE_SIGNIN:
-        url = '/auth/google';
-        break;
-      case PASSWORD_LOGIN:
-        url = '/auth/password';
-        break;
+    case FACEBOOK_LOGIN:
+      url = '/auth/facebook';
+      break;
+    case GOOGLE_SIGNIN:
+      url = '/auth/google';
+      break;
+    case PASSWORD_LOGIN:
+      url = '/auth/password';
+      break;
     }
     // POST-ing credential object will be converted to FormData object
     return fetch(url, {
@@ -171,7 +171,7 @@ app._authenticateWithServer = function(provider, cred) {
     }).then(function(profile) {
       // Done. Resolve.
       resolve(profile);
-    }, function(e) {
+    }, function() {
       // Polymer event to notice user that 'Authentication failed'.
       app.fire('show-toast', {
         text: 'Authentication failed'
