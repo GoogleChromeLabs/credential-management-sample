@@ -44,42 +44,40 @@ app.listeners = {
  * @return {Promise} Resolves when stored, rejects when skipped.
  */
 app._storeCredential = function(provider, _cred) {
-  return new Promise(function(resolve, reject) {
-    var cred = null;
-    // Is Credential Management API available?
-    if (app.cmaEnabled) {
-      switch (provider) {
-        // If trying to store id/password
-      case PASSWORD_LOGIN:
-        // Create `Credential` object for password
-        cred = new PasswordCredential({
-          id:       _cred.get('email'),
-          password: _cred.get('password'),
-          name:     _cred.get('name') || ''
-        });
-        break;
-      // If trying to store Google Sign-In credential
-      case GOOGLE_SIGNIN:
-      // If trying to store Facebook Login credential
-      case FACEBOOK_LOGIN:
-        // Create `Credential` object for federation
-        cred = new FederatedCredential({
-          id:       _cred.email,
-          name:     _cred.name,
-          iconURL:  _cred.imageUrl || DEFAULT_IMG,
-          provider: provider
-        });
-        break;
-      }
-      // Actual storing operation
-      navigator.credentials.store(cred).then(function() {
-        resolve(_cred);
-      }, reject);
-    } else {
-      // If Credential Management API is not available, just resolve.
-      resolve(_cred);
+  var cred = null;
+  // Is Credential Management API available?
+  if (navigator.credentials) {
+    switch (provider) {
+      // If trying to store id/password
+    case PASSWORD_LOGIN:
+      // Create `Credential` object for password
+      cred = new PasswordCredential({
+        id:       _cred.get('email'),
+        password: _cred.get('password'),
+        name:     _cred.get('name') || ''
+      });
+      break;
+    // If trying to store Google Sign-In credential
+    case GOOGLE_SIGNIN:
+    // If trying to store Facebook Login credential
+    case FACEBOOK_LOGIN:
+      // Create `Credential` object for federation
+      cred = new FederatedCredential({
+        id:       _cred.email,
+        name:     _cred.name,
+        iconURL:  _cred.imageUrl || DEFAULT_IMG,
+        provider: provider
+      });
+      break;
     }
-  });
+    // Actual storing operation
+    return navigator.credentials.store(cred).then(function() {
+      return Promise.resolve(_cred);
+    });
+  } else {
+    // If Credential Management API is not available, just resolve.
+    return Promise.resolve(_cred);
+  }
 };
 
 /**
@@ -88,52 +86,50 @@ app._storeCredential = function(provider, _cred) {
  * @return {Promise} Resolves if credential info is available.
  */
 app._autoSignIn = function(unmediated) {
-  return new Promise(function(resolve, reject) {
-    if (app.cmaEnabled) {
-      // Actual Credential Management API call to get credential object
-      return navigator.credentials.get({
-        password: true,
-        federated: {
-          providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
-        },
-        unmediated: unmediated
-      }).then(function(cred) {
-        // If credential object is available
-        if (cred) {
-          switch (cred.type) {
-          case 'password':
-            // Change form `id` name to `email`
-            cred.idName = 'email';
-            // Include CSRF token in the credential object
-            var csrf_token = new FormData();
-            csrf_token.append('csrf_token',
-                document.querySelector('#csrf_token').value);
-            // Note `.additionalData` accepts `FormData` which
-            // typically includes the CSRF token.
-            cred.additionalData = csrf_token;
-            // Return Promise from `pwSignIn`
-            return app.pwSignIn(cred);
-          case 'federated':
-            switch (cred.provider) {
-            case GOOGLE_SIGNIN:
-              // Return Promise from `gSignIn`
-              return app.gSignIn(cred.id);
-            case FACEBOOK_LOGIN:
-              // Return Promise from `fbSignIn`
-              return app.fbSignIn();
-            }
-            break;
+  if (navigator.credentials) {
+    // Actual Credential Management API call to get credential object
+    return navigator.credentials.get({
+      password: true,
+      federated: {
+        providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
+      },
+      unmediated: unmediated
+    }).then(function(cred) {
+      // If credential object is available
+      if (cred) {
+        switch (cred.type) {
+        case 'password':
+          // Change form `id` name to `email`
+          cred.idName = 'email';
+          // Include CSRF token in the credential object
+          var csrf_token = new FormData();
+          csrf_token.append('csrf_token',
+              document.querySelector('#csrf_token').value);
+          // Note `.additionalData` accepts `FormData` which
+          // typically includes the CSRF token.
+          cred.additionalData = csrf_token;
+          // Return Promise from `pwSignIn`
+          return app.pwSignIn(cred);
+        case 'federated':
+          switch (cred.provider) {
+          case GOOGLE_SIGNIN:
+            // Return Promise from `gSignIn`
+            return app.gSignIn(cred.id);
+          case FACEBOOK_LOGIN:
+            // Return Promise from `fbSignIn`
+            return app.fbSignIn();
           }
-        } else {
-          // Reject if credential object is not available
-          reject();
+          break;
         }
-      });
-    } else {
-      // Reject if Credential Management API is not available
-      reject();
-    }
-  });
+      } else {
+        // Reject if credential object is not available
+        return Promise.reject();
+      }
+    });
+  } else {
+    // Reject if Credential Management API is not available
+    return Promise.reject();
+  }
 };
 
 /**
@@ -143,39 +139,37 @@ app._autoSignIn = function(unmediated) {
  * @return {Promise} Resolves when successfully authenticated
  */
 app._authenticateWithServer = function(provider, cred) {
-  return new Promise(function(resolve, reject) {
-    var url = '';
-    switch (provider) {
-    case FACEBOOK_LOGIN:
-      url = '/auth/facebook';
-      break;
-    case GOOGLE_SIGNIN:
-      url = '/auth/google';
-      break;
-    case PASSWORD_LOGIN:
-      url = '/auth/password';
-      break;
-    }
-    // POST-ing credential object will be converted to FormData object
-    return fetch(url, {
-      method:       'POST',
-      body:         cred,
-      // `credentials:'include'` is required to include cookie on `fetch`
-      credentials:  'include'
-    }).then(function(res) {
-      // Convert JSON string to an object
-      return res.json();
-    }).then(function(profile) {
-      // User is now signed in
-      return app.signedIn(profile);
-    }).then(function(profile) {
-      // Done. Resolve.
-      resolve(profile);
-    }, function() {
-      // Polymer event to notice user that 'Authentication failed'.
-      app.fire('show-toast', {
-        text: 'Authentication failed'
-      });
+  var url = '';
+  switch (provider) {
+  case FACEBOOK_LOGIN:
+    url = '/auth/facebook';
+    break;
+  case GOOGLE_SIGNIN:
+    url = '/auth/google';
+    break;
+  case PASSWORD_LOGIN:
+    url = '/auth/password';
+    break;
+  }
+  // POST-ing credential object will be converted to FormData object
+  return fetch(url, {
+    method:       'POST',
+    // `credentials:'include'` is required to include cookie on `fetch`
+    credentials:  'include',
+    body:         cred
+  }).then(function(res) {
+    // Convert JSON string to an object
+    return res.json();
+  }).then(function(profile) {
+    // User is now signed in
+    return app.signedIn(profile);
+  }).then(function(profile) {
+    // Done. Resolve.
+    return Promise.resolve(profile);
+  }, function() {
+    // Polymer event to notice user that 'Authentication failed'.
+    app.fire('show-toast', {
+      text: 'Authentication failed'
     });
   });
 };
@@ -185,28 +179,49 @@ app._authenticateWithServer = function(provider, cred) {
  * @return {void}
  */
 app.onPwSignIn = function() {
-  // Construct `FormData` object from actual `form`
-  var form = new FormData(this.$.form);
-  // Don't forget to include the CSRF Token.
-  form.append('csrf_token', document.querySelector('#csrf_token').value);
+  if (navigator.credentials) {
+    // Construct `FormData` object from actual `form`
+    var form = new FormData(this.$.form);
 
-  // Sign-In with our own server
-  app.pwSignIn(form)
-  .then(function(profile) {
-    // `profile` may involve user name returned by the server
-    form.append('name', profile.name);
-    // Store credential information before posting
-    app._storeCredential(PASSWORD_LOGIN, form);
-  });
+    // Sign-In with our own server
+    app.pwSignIn(form)
+    .then(function(profile) {
+      // `profile` may involve user name returned by the server
+      form.append('name', profile.name);
+      // Store credential information before posting
+      app._storeCredential(PASSWORD_LOGIN, form);
+    });
+  } else {
+    app._authenticateWithServer(new FormdData(this.$.form));
+  }
 };
 
 /**
  * Let user sign-in using id/password
- * @param  {FormData|CredentialObject} cred FormData or CredentialObject
+ * @param  {CredentialObject} cred FormData or CredentialObject
  * @return {Promise} Returns result of `_authenticateWithServer()`
  */
 app.pwSignIn = function(cred) {
-  return app._authenticateWithServer(PASSWORD_LOGIN, cred);
+  // POST-ing credential object will be converted to FormData object
+  return fetch('/auth/password', {
+    method:       'POST',
+    // Include the credential object as `credentials`
+    credentials:  cred
+  }).then(function(res) {
+    // Convert JSON string to an object
+    return res.json();
+  }).then(function(profile) {
+    // User is now signed in
+    return app.signedIn(profile);
+  }).then(function(profile) {
+    // Done. Resolve.
+    return Promise.resolve(profile);
+  }, function() {
+    // Polymer event to notice user that 'Authentication failed'.
+    app.fire('show-toast', {
+      text: 'Authentication failed'
+    });
+  });
 };
 
 /**
@@ -283,6 +298,10 @@ app.fbSignIn = function() {
       // When authentication was rejected by Facebook
       return Promise.reject();
     }
+  }, function() {
+    app.fire('show-toast', {
+      text: 'Facebook Login failed'
+    });
   });
 };
 
@@ -353,7 +372,7 @@ app.onUnregister = function() {
     if (res.status != 200) {
       throw 'Could not unregister';
     }
-    if (app.cmaEnabled) {
+    if (navigator.credentials) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
       navigator.credentials.requireUserMediation();
@@ -386,7 +405,7 @@ app.signOut = function() {
     // `credentials:'include'` is required to include cookie on `fetch`
     credentials:  'include'
   }).then(function() {
-    if (app.cmaEnabled) {
+    if (navigator.credentials) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
       navigator.credentials.requireUserMediation();
@@ -404,23 +423,21 @@ app.signOut = function() {
  * @return {Promise} Resolves when authentication succeeded.
  */
 app.signedIn = function(res) {
-  return new Promise(function(resolve, reject) {
-    if (res && res.name && res.email) {
-      app.fire('show-toast', {
-        text: "You're signed in."
-      });
-      app.userProfile = {
-        id:       res.id,
-        name:     res.name,
-        email:    res.email,
-        imageUrl: res.imageUrl || DEFAULT_IMG
-      };
-      app.$.dialog.close();
-      resolve(res);
-    } else {
-      reject('Authentication failed');
-    }
-  });
+  if (res && res.name && res.email) {
+    app.fire('show-toast', {
+      text: "You're signed in."
+    });
+    app.userProfile = {
+      id:       res.id,
+      name:     res.name,
+      email:    res.email,
+      imageUrl: res.imageUrl || DEFAULT_IMG
+    };
+    app.$.dialog.close();
+    return Promise.resolve(res);
+  } else {
+    return Promise.reject('Authentication failed');
+  }
 };
 
 /**
@@ -461,7 +478,7 @@ FB.init({
 // Initialise Google Sign-In
 gapi.load('auth2', function() {
   gapi.auth2.init();
-  if (app.cmaEnabled) {
+  if (navigator.credentials) {
     // Try auto sign-in performance after initialization
     app._autoSignIn(true).then(function() {
       console.log('auto sign-in succeeded.');

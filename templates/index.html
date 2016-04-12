@@ -79,12 +79,12 @@
 </head>
 
 <body unresolved class="fullbleed layout vertical">
-  <input id="csrf_token" type="hidden" name="csrf_token" value="{{csrf_token}}" />{% raw %}
   <template id="app" is="dom-bind">
     <paper-dialog id="dialog" modal>
       <paper-dialog-scrollable>
         <h2>Please sign-in</h2>
         <form is="iron-form" id="form" method="post">
+          <input id="csrf_token" type="hidden" name="csrf_token" value="{{csrf_token}}" />
           <paper-input id="lemail" name="email" label="email" autocomplete="username"></paper-input>
           <paper-input id="lpassword" type="password" name="password" label="password" autocomplete="current-password"></paper-input>
           <div class="buttons">
@@ -104,7 +104,7 @@
       </paper-dialog-scrollable>
     </paper-dialog>
 
-    <paper-drawer-panel id="paperDrawerPanel">
+    <paper-drawer-panel id="paperDrawerPanel">{% raw %}
       <!-- Drawer Scroll Header Panel -->
       <paper-scroll-header-panel drawer fixed>
 
@@ -165,7 +165,7 @@
               </template>
               <template is="dom-if" if="[[!userProfile]]">
                 <paper-card heading="Sign-up now!">
-                  <form is="iron-form" id="regForm" method="post">
+                  <form id="regForm" method="post">
                     <paper-input id="name" name="name" label="Your name" autocomplete="name">
                     </paper-input>
                     <paper-input id="email" name="email" label="Your email address" autocomplete="email">
