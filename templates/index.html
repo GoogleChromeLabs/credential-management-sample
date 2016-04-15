@@ -30,7 +30,7 @@
   <script src="https://apis.google.com/js/platform.js"></script>
   <script src="https://connect.facebook.net/en_US/sdk.js"></script>
 
-  <link rel="import" href="elements/elements.html">
+  <link rel="import" href="elements/elements.vulcanized.html">
   <link rel="shortcut icon" href="/favicon.png">
   <style>
     .paper-font-title {
@@ -165,10 +165,11 @@
               </template>
               <template is="dom-if" if="[[!userProfile]]">
                 <paper-card heading="Sign-up now!">
-                  <form id="regForm" method="post">
+                  <form id="regForm" method="post">{% endraw %}
+                    <input type="hidden" name="csrf_token" value="{{csrf_token}}" />{% raw %}
                     <paper-input id="name" name="name" label="Your name" autocomplete="name">
                     </paper-input>
-                    <paper-input id="email" name="email" label="Your email address" autocomplete="email">
+                    <paper-input id="email" name="email" label="Your email address" autocomplete="username">
                     </paper-input>
                     <paper-input id="password" type="password" name="password" label="Password" autocomplete="new-password">
                     </paper-input>

@@ -37,50 +37,6 @@ app.listeners = {
 };
 
 /**
- * Store credential information using Credential Management API
- * @param  {String} provider Credential type string.
- * @param  {FormData|Object} _cred FormData or JS Object that contains
- *                                 credential information.
- * @return {Promise} Resolves when stored, rejects when skipped.
- */
-app._storeCredential = function(provider, _cred) {
-  var cred = null;
-  // Is Credential Management API available?
-  if (navigator.credentials) {
-    switch (provider) {
-      // If trying to store id/password
-    case PASSWORD_LOGIN:
-      // Create `Credential` object for password
-      cred = new PasswordCredential({
-        id:       _cred.get('email'),
-        password: _cred.get('password'),
-        name:     _cred.get('name') || ''
-      });
-      break;
-    // If trying to store Google Sign-In credential
-    case GOOGLE_SIGNIN:
-    // If trying to store Facebook Login credential
-    case FACEBOOK_LOGIN:
-      // Create `Credential` object for federation
-      cred = new FederatedCredential({
-        id:       _cred.email,
-        name:     _cred.name,
-        iconURL:  _cred.imageUrl || DEFAULT_IMG,
-        provider: provider
-      });
-      break;
-    }
-    // Actual storing operation
-    return navigator.credentials.store(cred).then(function() {
-      return Promise.resolve(_cred);
-    });
-  } else {
-    // If Credential Management API is not available, just resolve.
-    return Promise.resolve(_cred);
-  }
-};
-
-/**
  * Let users sign-in without typing credentials
  * @param  {Boolean} unmediated Determines if user mediation is required.
  * @return {Promise} Resolves if credential info is available.
@@ -135,10 +91,10 @@ app._autoSignIn = function(unmediated) {
 /**
  * Authentication flow with our own server
  * @param  {String} provider Credential type string.
- * @param  {FormData|CredentialObject} cred FormData or CredentialObject
+ * @param  {FormData} form FormData to POST to the server
  * @return {Promise} Resolves when successfully authenticated
  */
-app._authenticateWithServer = function(provider, cred) {
+app._authenticateWithServer = function(provider, form) {
   var url = '';
   switch (provider) {
   case FACEBOOK_LOGIN:
@@ -153,10 +109,10 @@ app._authenticateWithServer = function(provider, cred) {
   }
   // POST-ing credential object will be converted to FormData object
   return fetch(url, {
-    method:       'POST',
+    method:      'POST',
     // `credentials:'include'` is required to include cookie on `fetch`
-    credentials:  'include',
-    body:         cred
+    credentials: 'include',
+    body:        form
   }).then(function(res) {
     // Convert JSON string to an object
     return res.json();
@@ -181,15 +137,15 @@ app._authenticateWithServer = function(provider, cred) {
 app.onPwSignIn = function() {
   if (navigator.credentials) {
     // Construct `FormData` object from actual `form`
-    var form = new FormData(this.$.form);
+    var cred = new PasswordCredential(this.$.form);
 
     // Sign-In with our own server
-    app.pwSignIn(form)
+    app.pwSignIn(cred)
     .then(function(profile) {
       // `profile` may involve user name returned by the server
-      form.append('name', profile.name);
+      cred.name = profile.name;
       // Store credential information before posting
-      app._storeCredential(PASSWORD_LOGIN, form);
+      navigator.credentials.store(cred);
     });
   } else {
     app._authenticateWithServer(new FormdData(this.$.form));
@@ -231,8 +187,17 @@ app.pwSignIn = function(cred) {
 app.onGSignIn = function() {
   app.gSignIn()
   .then(function(profile) {
-    // Store credential information after successful authentication
-    app._storeCredential(GOOGLE_SIGNIN, profile);
+    if (navigator.credentials) {
+      // Create `Credential` object for federation
+      var cred = new FederatedCredential({
+        id:       profile.email,
+        name:     profile.name,
+        iconURL:  profile.imageUrl || DEFAULT_IMG,
+        provider: GOOGLE_SIGNIN
+      });
+      // Store credential information after successful authentication
+      navigator.credentials.store(cred);
+    }
   });
 };
 
@@ -263,9 +228,19 @@ app.gSignIn = function(id) {
  * @return {void}
  */
 app.onFbSignIn = function() {
-  app.fbSignIn().then(function(profile) {
-    // Store credential information after successful authentication
-    app._storeCredential(FACEBOOK_LOGIN, profile);
+  app.fbSignIn()
+  .then(function(profile) {
+    if (navigator.credentials) {
+      // Create `Credential` object for federation
+      var cred = new FederatedCredential({
+        id:       profile.email,
+        name:     profile.name,
+        iconURL:  profile.imageUrl || DEFAULT_IMG,
+        provider: FACEBOOK_LOGIN
+      });
+      // Store credential information after successful authentication
+      navigator.credentials.store(cred);
+    }
   });
 };
 
@@ -311,15 +286,13 @@ app.fbSignIn = function() {
  * @return {void}
  */
 app.onRegister = function() {
-  var form = new FormData(document.querySelector('#regForm'));
-  // Don't forget to include the CSRF Token.
-  form.append('csrf_token', document.querySelector('#csrf_token').value);
+  var form = document.querySelector('#regForm');
 
   fetch('/register', {
     method:       'POST',
-    body:         form,
     // `credentials:'include'` is required to include cookie on `fetch`
-    credentials:  'include'
+    credentials:  'include',
+    body:         new FormData(form)
   }).then(function(res) {
     if (res.status == 200) {
       return res.json();
@@ -340,8 +313,16 @@ app.onRegister = function() {
       };
       app.$.dialog.close();
 
-      // Store user information as this is registration using id/password
-      app._storeCredential(PASSWORD_LOGIN, form);
+      if (navigator.credentials) {
+        // Create password credential
+        var cred = new PasswordCredential(form);
+        cred.idName = 'email';
+        cred.name = profile.name;
+        cred.iconURL = profile.imageUrl;
+
+        // Store user information as this is registration using id/password
+        navigator.credentials.store(cred);
+      }
     } else {
       throw 'Registration failed';
     }
@@ -365,9 +346,9 @@ app.onUnregister = function() {
 
   fetch('/unregister', {
     method:       'POST',
-    body:         form,
     // `credentials:'include'` is required to include cookie on `fetch`
-    credentials:  'include'
+    credentials:  'include',
+    body:         form
   }).then(function(res) {
     if (res.status != 200) {
       throw 'Could not unregister';
@@ -401,9 +382,9 @@ app.signOut = function() {
 
   fetch('/signout', {
     method:       'POST',
-    body:         form,
     // `credentials:'include'` is required to include cookie on `fetch`
-    credentials:  'include'
+    credentials:  'include',
+    body:         form
   }).then(function() {
     if (navigator.credentials) {
       // Turn on the mediation mode so auto sign-in won't happen
@@ -413,6 +394,10 @@ app.signOut = function() {
     app.userProfile = null;
     app.fire('show-toast', {
       text: "You're signed out."
+    });
+  }, function() {
+    app.fire('show-toast', {
+      text: 'Failed to sign out'
     });
   });
 };
@@ -484,11 +469,6 @@ gapi.load('auth2', function() {
       console.log('auto sign-in succeeded.');
     }).catch(function() {
       console.log('auto sign-in was not performed.');
-      app._autoSignIn(false).then(function() {
-        console.log('manual sign-in succeeded.');
-      }, function() {
-        console.log('manual sign-in was not performed.');
-      });
     });
   }
 });
