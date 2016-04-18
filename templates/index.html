@@ -114,7 +114,7 @@
         </paper-toolbar>
         <paper-menu class="content" selected="{{selected}}">
           <paper-item>Home</paper-item>
-          <paper-item>How to use</paper-item>
+          <paper-item>What's this?</paper-item>
           <template is="dom-if" if="[[userProfile]]">
             <paper-item on-tap="onUnregister">Remove account</paper-item>
           </template>
@@ -192,24 +192,16 @@
               </template>
             </div>{% endraw %}
             <div class="layout vertical howto">
-
-              <h2>What does this website demostrate?</h2>
-
               <p>This is a demo website of The <a href="https://w3c.github.io/webappsec-credential-management/">
-              Credential Management API</a>.</p>
-
-              <p><b>TL;DR</b> Use Credential Management API to get users sign-in without hassle</p>
+              Credential Management API</a>.<br/>
+              You can find an introduction document <a href="https://developers.google.com/web/updates/" target="_blank">here</a>. API reference doc <a href="https://developer.mozilla.org/en-US/docs/Web/API/Credential_Management_API" target="_blank">here</a>.</p>
 
               <h3>What is the Credential Management API?</h3>
 
-              <p>To provide a
-              sophisticated user experience, it's important to help users
-              authenticate themselves to your website. Authenticated users can
-              interact using a dedicated profile, sync data across devices,
-              process data while offline, the list goes on and on. But creating,
-              remembering and typing passwords tend to be cumbersome for end
-              users which leads them to re-using same passwords on different
-              sites. This of course entails a security risk.</p>
+              <p>To provide a sophisticated user experience, it's important to help users authenticate themselves to your website. Authenticated users can interact with each other using a dedicated profile, sync data across devices, or process data while offline; the list goes on and on. But creating, remembering and typing passwords tends to be cumbersome for end users, especially on mobile screens which leads them to re-using same passwords on different sites. This of course is a security risk.</p>
+
+
+              <p>The latest version of Chrome (M51) supports the <a href="http://w3c.github.io/webappsec-credential-management/" target="_blank">Credential Management API</a>. It's a standards-track proposal at the W3C that gives developers programmatic access to a browser’s credential manager and helps users to sign in more easily.</p>
 
               <p>A new <a
               href="http://w3c.github.io/webappsec-credential-management/">Credential
@@ -234,10 +226,7 @@
 
               <h2>Prerequisite</h2>
 
-              <p>You can try out the Credential Management API on Chrome version
-              later than 50 with
-              <code>chrome://flags/#enable-credential-manager-api</code> flag
-              turned on. Signed-in to Chrome profile is preferred.  </p>
+              <p>You can use the Credential Management API on Chrome version 51 and above. You'll need to use it on secure origins.</p>
 
               <h2>How to experience</h2>
 

@@ -4,13 +4,13 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "pip install -t lib -r requirements.txt; bower install;"
+    "postinstall": "pip install -t lib -r requirements.txt; bower install;",
+    "build": "vulcanize static/elements/elements.html > static/elements/elements.vulcanized.html;"
   },
   "author": "Eiji Kitamura <agektmr@google.com>",
   "license": "Apache-2.0",
   "devDependencies": {
     "html-minifier": "^1.0.0",
-    "vulcanize": "^1.14.0",
-    "markdown": "^0.5.0"
+    "vulcanize": "^1.14.0"
   }
 }

@@ -24,7 +24,7 @@
 ### Step 2. Configure Facebook Login
 - Set up a new project at [Facebook Developers](https://developers.facebook.com/)
 - Set "Site URL" `http://localhost:8080`
-- Copy and paste the App ID at line 18 of `static/scripts/app.js`.
+- Copy and paste the App ID in `app.yaml`.
 
 ![](static/images/howto/fb_config.png)
 
@@ -32,11 +32,15 @@
 - After cloning this repository, do the following:
 
 ```sh
+# Create virtual env
+$ virtualenv env
+$ source env/bin/activate
 # Clone submodules
 $ git submodule init
 $ git submodule update
 # This command will install dependencies
 $ npm install
+$ npm run build
 ```
 
 ### Step 4. Run the app
