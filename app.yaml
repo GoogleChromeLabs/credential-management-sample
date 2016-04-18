@@ -4,6 +4,9 @@ runtime: python27
 api_version: 1
 threadsafe: true
 
+env_variables:
+  FACEBOOK_APPID: 775126365960457
+
 libraries:
 - name: ssl
   version: latest
