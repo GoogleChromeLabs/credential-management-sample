@@ -147,7 +147,7 @@ app.onPwSignIn = function() {
       navigator.credentials.store(cred);
     });
   } else {
-    app._authenticateWithServer(new FormdData(this.$.form));
+    app._authenticateWithServer(PASSWORD_LOGIN, new FormData(this.$.form));
   }
 };
 
