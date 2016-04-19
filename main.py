@@ -137,7 +137,7 @@ def pwauth():
 @app.route('/auth/google', methods=['POST'])
 def gauth():
     # The POST should include `id_token`
-    id_token = request.form.get('id_token', '')
+    id_token = request.form.get('id_token', '')[:3072]
 
     # Verify the `id_token` using API Client Library
     idinfo = client.verify_id_token(id_token, CLIENT_ID)
@@ -167,7 +167,7 @@ def gauth():
 @app.route('/auth/facebook', methods=['POST'])
 def fblogin():
     # The POST should include `access_token` from Facebook
-    access_token = request.form.get('access_token', None)
+    access_token = request.form.get('access_token', None)[:3072]
 
     # If the access_token is `None`, fail.
     if access_token is None:
