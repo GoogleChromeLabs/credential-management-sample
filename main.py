@@ -101,9 +101,14 @@ def index():
 @app.route('/auth/password', methods=['POST'])
 def pwauth():
     # The POST should include `email`
-    email = request.form.get('email', None)
+    email = request.form.get('email', None)[:32]
+
     # The POST should include `password`
-    password = request.form.get('password', None)
+    password = request.form.get('password', None)[:32]
+
+    # Validate the parameters POST'ed (intentionally not too strict)
+    if not email or not password:
+        return make_response('Bad Request', 400)
 
     # Obtain Datastore entry by email address
     store = CredentialStore.get_by_id(email)
@@ -201,24 +206,27 @@ def fblogin():
 
 @app.route('/register', methods=['POST'])
 def register():
-    # Validate the parameters POST'ed (intentionally not too strict)
-    if 'email' in request.form and 'password' in request.form \
-            and len(request.form['email']) > 1 \
-            and len(request.form['password']) > 1:
+    # The POST should include `email`
+    email = request.form.get('email', None)[:32]
 
-        # Hash password
-        password = CredentialStore.hash(request.form['password'])
-        # Perform relevant sanitization/validation on your own code.
-        # This demo omits them on purpose for simplicity.
-        profile = {
-            'id':       request.form.get('email', ''),
-            'email':    request.form.get('email', ''),
-            'name':     request.form.get('name', ''),
-            'password': password,
-            'imageUrl': 'images/default_img.png'
-        }
-    else:
-        return make_response('Bad request', 400)
+    # The POST should include `password`
+    _password = request.form.get('password', None)[:32]
+
+    # Validate the parameters POST'ed (intentionally not too strict)
+    if not email or not _password:
+        return make_response('Bad Request', 400)
+
+    # Hash password
+    password = CredentialStore.hash(_password)
+    # Perform relevant sanitization/validation on your own code.
+    # This demo omits them on purpose for simplicity.
+    profile = {
+        'id':       email,
+        'email':    email,
+        'name':     request.form.get('name', ''),
+        'password': password,
+        'imageUrl': 'images/default_img.png'
+    }
 
     # Overwrite existing user
     store = CredentialStore(id=profile['id'], profile=profile)
