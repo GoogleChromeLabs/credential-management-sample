@@ -29,8 +29,6 @@
 ![](static/images/howto/fb_config.png)
 
 ### Step 3. Install dependencies
-- After cloning this repository, do the following:
-
 ```sh
 # Create virtual env
 $ virtualenv env

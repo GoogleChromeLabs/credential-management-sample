@@ -22,7 +22,7 @@
   <meta charset="utf-8">
   <meta name="description" content="">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <title>Credential Management API Sample</title>
+  <title>Credential Management API Demo</title>
 
   <meta name="google-signin-client_id" content="{{client_id}}">
   <script src="bower_components/fetch/fetch.js"></script>
@@ -130,7 +130,7 @@
           <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle>
           </paper-icon-button>
           <div class="flex title">
-            Credential Management API Sample
+            Credential Management API Demo
           </div>
 
           <!-- Toolbar icons -->
@@ -150,10 +150,8 @@
             <div class="layout center vertical">
               <template is="dom-if" if="[[!cmaEnabled]]">
                 <p>Credential Management API is not available on your browser.
-                Try <a href="https://www.google.com/chrome/">Google Chrome 49 or
-                later</a> and enable the flag at
-                chrome://flags/#enable-credential-manager-api .
-                </p>
+                Try <a href="https://www.google.com/chrome/browser/beta.html">
+                Google Chrome</a> version 51 and above.</p>
               </template>
               <template is="dom-if" if="[[userProfile]]">
                 <div class="profile layout center vertical">
@@ -167,11 +165,11 @@
                 <paper-card heading="Sign-up now!">
                   <form id="regForm" method="post">{% endraw %}
                     <input type="hidden" name="csrf_token" value="{{csrf_token}}" />{% raw %}
-                    <paper-input id="name" name="name" label="Your name" autocomplete="name">
+                    <paper-input id="name" name="name" label="Whatever name" autocomplete="name">
                     </paper-input>
-                    <paper-input id="email" name="email" label="Your email address" autocomplete="username">
+                    <paper-input id="email" name="email" label="Fake email address" autocomplete="username">
                     </paper-input>
-                    <paper-input id="password" type="password" name="password" label="Password" autocomplete="new-password">
+                    <paper-input id="password" type="password" name="password" label="Bogus password" autocomplete="new-password">
                     </paper-input>
                     <div class="layout horizontal around-justified">
                       <paper-button on-tap="onRegister" raised>
@@ -192,124 +190,42 @@
               </template>
             </div>{% endraw %}
             <div class="layout vertical howto">
-              <p>This is a demo website of The <a href="https://w3c.github.io/webappsec-credential-management/">
-              Credential Management API</a>.<br/>
-              You can find an introduction document <a href="https://developers.google.com/web/updates/" target="_blank">here</a>. API reference doc <a href="https://developer.mozilla.org/en-US/docs/Web/API/Credential_Management_API" target="_blank">here</a>.</p>
+              <p>This is a demo website of the Credential Management API.  </p>
 
-              <h3>What is the Credential Management API?</h3>
+              <p>You can find various resources:  </p>
 
-              <p>To provide a sophisticated user experience, it's important to help users authenticate themselves to your website. Authenticated users can interact with each other using a dedicated profile, sync data across devices, or process data while offline; the list goes on and on. But creating, remembering and typing passwords tends to be cumbersome for end users, especially on mobile screens which leads them to re-using same passwords on different sites. This of course is a security risk.</p>
+              <ul> <li><a
+              href="https://github.com/GoogleChrome/credential-management-sample">Source
+              code of this demo</a></li> <li><a
+              href="https://developers.google.com/web/updates/2016/04/credential-management-api">An
+              introduction article</a></li> <li><a
+              href="https://www.w3.org/TR/credential-management-1/">The official
+              spec</a></li> <li><a
+              href="https://developer.mozilla.org/en-US/docs/Web/API/Credential_Management_API">MDN
+              API reference</a></li> </ul>
 
+              <p>By using Credential Management API, you will be able to add
+              following functionalities to a website, for example:  </p>
 
-              <p>The latest version of Chrome (M51) supports the <a href="http://w3c.github.io/webappsec-credential-management/" target="_blank">Credential Management API</a>. It's a standards-track proposal at the W3C that gives developers programmatic access to a browser’s credential manager and helps users to sign in more easily.</p>
+              <ul> <li><strong>Show account chooser when signing in:</strong>
+              Shows a native account chooser UI when a user taps "Sign In".</li>
+              <li><strong>Store credentials:</strong> Upon successful sign-in,
+              store the credential information to the browser's password manager
+              for later use.</li> <li><strong>Let the user automatically sign
+              back in:</strong> Let the user sign back in if a session is
+              expired.</li> <li><strong>Mediate auto sign-in:</strong> Once a
+              user signs out, disable automatic sign-in.</li> </ul>
 
-              <p>A new <a
-              href="http://w3c.github.io/webappsec-credential-management/">Credential
-              Management API</a> has landed behind a flag in Chrome 50. It's a
-              standards-track proposal at the W3C that can store and retrieve
-              user's credential information using JavaScript. You can
-              incorporate the API's functionalities onto your existing website
-              relatively easy, without making changes to your backend.</p>
-
-              <p>There are 3 benefits for developers to implement the feature.
+              <p>Here's a quick instruction how to experience those features.
               </p>
 
-              <ul><li>Enable users to sign in without typing passwords.
-              <ul><li>Resume session automatically when user is signed out
-              because of session expiration.</li></ul></li> <li>Help users
-              remember the federated account of their choice and enable auto
-              sign-in.</li> <li>Avoid saving invalid credentials upon failed
-              authentication or password update</li></ul>
-
-              <p>Here's how you can experience the benefits of using Credential
-              Management API on this website.</p>
-
-              <h2>Prerequisite</h2>
-
-              <p>You can use the Credential Management API on Chrome version 51 and above. You'll need to use it on secure origins.</p>
-
-              <h2>How to experience</h2>
-
-              <h3>Step 1. Sign up</h3>
-
-              <img src="/images/howto/sign-up.png" alt="" title="" />
-
-              <p>Open the page, enter name, email address and password and sign
-              up (Beware, even though password is stored encrypted, please don't
-              enter real ones).</p>
-
-              <h3>Step 2. Save password</h3>
-
-              <img src="/images/howto/save-password.png" alt="" title="" />
-              <p>You will then be signed-in and browser asks you to store
-              credential information to the password manager. Tap "Save" to
-              store the credential. <br /> You can find the saved credential
-              information at <code>chrome://settings/passwords</code>.</p>
-
-              <h3>Step 3. The first sign-in</h3>
-
-              <img src="/images/howto/the-first-sign-in.png" alt="" title="" />
-
-              <p>Reload the page. You should be signed-out because this demo
-              site doesn't keep sessions. Not auto-signed-in? Don't worry, this
-              is expected. Tap "Sign-In". <br /> You should see an account
-              chooser dialog. Press the account you have just signed-up with.
-              </p>
-
-              <h3>Step 4. Opt-in to Smart Lock</h3>
-
-              <img src="/images/howto/opt-in-to-smart-lock.png" alt="" title="" />
-
-              <p>You should now see a dialog asking if you want to opt-in to
-              Google Smart Lock. This will enable the feature to be turned on
-              for other sites as well. You can turn this off manually by going
-              to <code>chrome://settings/passwords</code>.</p>
-
-              <h3>Step 5. Auto sign-in</h3>
-
-              <img src="/images/howto/auto-sign-in.png" alt="" title="" />
-              <p>Now, try reload the page again. You should now see at the
-              bottom of the page that you are automatically signed-in using the
-              account you have just signed-up with, as you have turned on the
-              feature.</p>
-
-              <h3>Step 6. Sign out to enable the "mediation mode"</h3>
-
-              <p>By signing out from the site by clicking on "Sign Out" brings
-              you back to a signed out state. Try reload the page. You will
-              notice that you won't be automatically signed-in. This is called
-              the "mediation mode". The mediation mode prevents you from
-              automatically sign-in. It's usually turned on when a user signs
-              out on purpose. <br /> By user proactively signing-in, the
-              "mediation mode" will be turned off. Tap "Sign-In" again.</p>
-
-              <h3>Step 7. Add second account</h3>
-
-              <img src="/images/howto/add-second-account.png" alt="" title="" />
-
-              <p>At this time, instead of choosing an account, tap "Cancel".
-              This will show you a login modal dialog. Choose "Sign-In with
-              Google" (registration and login using Google Sign-In don't make
-              any difference on this demo site). <br /> A popup window should
-              show up so you can sign-in by allowing profile access.</p>
-
-              <h3>Step 8. Auto-sign-in with 2 accounts?</h3>
-
-              <img src="/images/howto/auto-sign-in-with-2-accounts.png" alt=""
-              title="" /> <p>Now you should be able to add the second account to
-              the site. Let's reload the page without signing-out and see what
-              happens? <br /> OK, you are not automatically signed-in. This is
-              because you have more than 1 account saved to the website. In this
-              case, users have to explicitly tap on "Sign-In" and choose an
-              account to sign-in with.</p>
-
-              <h3>Step 9. Try on different device</h3>
-
-              <p>Now switch your device if you are signed-in to Chrome using a
-              Google account. It could be another PC, Chromebook or another
-              Android device - anywhere Google Chrome can run with the same
-              profile.</p>
-
+              <ol> <li>Register with fake name, id and password</li> <li>Save
+              password when prompted.</li> <li>Reload the page.</li> <li>You
+              should be signed out.</li> <li>Tap "Sign In".</li> <li>You should
+              see an account chooser. Choose one.</li> <li>Opt-in to auto
+              sign-in.</li> <li>You should be signed in now.</li> <li>Reload the
+              page again.</li> <li>You will be auto signed in.</li> <li>Notice a
+              banner telling that you are signed in.</li> </ol>
             </div>
           </iron-pages>
         </div>
