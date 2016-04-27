@@ -30,6 +30,7 @@ from google.appengine.ext import ndb
 from google.appengine.api import urlfetch
 
 FACEBOOK_APPID=os.getenv('FACEBOOK_APPID')
+FACEBOOK_APPTOKEN=os.getenv('FACEBOOK_APPTOKEN', None)
 
 app = Flask(
     __name__,
@@ -173,10 +174,12 @@ def fblogin():
     if access_token is None:
         return make_response('Authentication failed.', 401)
 
+    app_token = FACEBOOK_APPTOKEN if FACEBOOK_APPTOKEN is not None else access_token
+
     # Verify the access token using Facebook API
     params = {
         'input_token':  access_token,
-        'access_token': access_token
+        'access_token': app_token
     }
     r = urlfetch.fetch('https://graph.facebook.com/debug_token?' +
                        urllib.urlencode(params))
