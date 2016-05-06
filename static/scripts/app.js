@@ -245,7 +245,7 @@ app.gSignIn = function(id) {
       // Set `login_hint` to specify an intended user account,
       // otherwise user selection dialog will popup.
       login_hint: id || ''
-    }).then(resolve);
+    });
   })().then(function(googleUser) {
     // Now user is successfully authenticated with Google.
     // Send ID Token to the server to authenticate with our server.
