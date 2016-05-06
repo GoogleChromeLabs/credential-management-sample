@@ -230,12 +230,23 @@ app.onGSignIn = function() {
  * @return {Promise} Returns result of authFlow
  */
 app.gSignIn = function(id) {
-  var auth2 = gapi.auth2.getAuthInstance();
-  return auth2.signIn({
-    // Set `login_hint` to specify an intended user account,
-    // otherwise user selection dialog will popup.
-    login_hint: id || ''
-  }).then(function(googleUser) {
+  // Return Promise after Facebook Login dance.
+  return (function() {
+    var auth2 = gapi.auth2.getAuthInstance();
+    if (auth2.isSignedIn.get()) {
+      // Check if currently signed in user is the same as intended.
+      var googleUser = auth2.currentUser.get();
+      if (googleUser.getBasicProfile().getEmail() === id) {
+        return Promise.resolve(googleUser);
+      }
+    }
+    // If the user is not signed in with expected account, let sign in.
+    return auth2.signIn({
+      // Set `login_hint` to specify an intended user account,
+      // otherwise user selection dialog will popup.
+      login_hint: id || ''
+    }).then(resolve);
+  })().then(function(googleUser) {
     // Now user is successfully authenticated with Google.
     // Send ID Token to the server to authenticate with our server.
     form = new FormData();
@@ -489,9 +500,10 @@ FB.init({
 
 // Initialise Google Sign-In
 gapi.load('auth2', function() {
-  gapi.auth2.init();
-  if (navigator.credentials) {
-    // Try auto sign-in performance after initialization
-    app._autoSignIn(true);
-  }
+  gapi.auth2.init().then(function() {
+    if (navigator.credentials) {
+      // Try auto sign-in performance after initialization
+      app._autoSignIn(true);
+    }
+  });
 });
