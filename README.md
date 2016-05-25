@@ -2,6 +2,7 @@
 
 - Try [a live demo](https://credential-management-sample.appspot.com).
 - Learn [how Credential Management API works](https://developers.google.com/web/updates/2016/04/credential-management-api).
+- Try [codelab](https://g.co/codelabs/cmapi).
 
 ## Installation
 
