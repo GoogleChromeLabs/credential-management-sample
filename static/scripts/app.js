@@ -130,13 +130,17 @@ app._authenticateWithServer = function(provider, form) {
  * When password sign-in button is pressed.
  * @return {void}
  */
-app.onPwSignIn = function() {
+app.onPwSignIn = function(e) {
+  e.preventDefault();
+
+  var signinForm = e.target;
+
   // Polymer `iron-form` feature to validate the form
-  if (!this.$.form.validate()) return;
+  if (!signinForm.validate()) return;
 
   if (navigator.credentials) {
     // Construct `FormData` object from actual `form`
-    var cred = new PasswordCredential(this.$.form);
+    var cred = new PasswordCredential(signinForm);
 
     // Sign-In with our own server
     app.pwSignIn(cred)
@@ -157,7 +161,7 @@ app.onPwSignIn = function() {
       });
     });
   } else {
-    app._authenticateWithServer(PASSWORD_LOGIN, new FormData(this.$.form))
+    app._authenticateWithServer(PASSWORD_LOGIN, new FormData(signinForm))
     .then(function() {
       app.$.dialog.close();
 
@@ -325,17 +329,19 @@ app.fbSignIn = function() {
  * and let user sign-in.
  * @return {void}
  */
-app.onRegister = function() {
-  var form = document.querySelector('#regForm');
+app.onRegister = function(e) {
+  e.preventDefault();
+
+  var regForm = e.target;
 
   // Polymer `iron-form` feature to validate the form
-  if (!form.validate()) return;
+  if (!regForm.validate()) return;
 
   fetch('/register', {
     method:       'POST',
     // `credentials:'include'` is required to include cookie on `fetch`
     credentials:  'include',
-    body:         new FormData(form)
+    body:         new FormData(regForm)
   }).then(function(res) {
     if (res.status == 200) {
       return res.json();
@@ -351,7 +357,7 @@ app.onRegister = function() {
 
     if (navigator.credentials) {
       // Create password credential
-      var cred = new PasswordCredential(form);
+      var cred = new PasswordCredential(regForm);
       cred.idName = 'email';
       cred.name = profile.name;
       cred.iconURL = profile.imageUrl;
@@ -403,7 +409,6 @@ app.onUnregister = function() {
   });
 };
 
-//
 /**
  * Invoked when 'Sign-out' button is pressed, performs sign-out.
  * @return {void}

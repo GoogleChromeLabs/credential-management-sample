@@ -38,6 +38,15 @@
       white-space: nowrap;
       text-overflow: ellipsis;
     }
+    .hidden {
+      appearance: none;
+      border: 0;
+      padding: 0;
+      margin: 0;
+      background: transparent;
+      min-width: 5.14em;
+      color: inherit;
+    }
     .profile img {
       width: 96px;
       height: 96px;
@@ -83,13 +92,17 @@
     <paper-dialog id="dialog" modal>
       <paper-dialog-scrollable>
         <h2>Please sign-in</h2>
-        <form is="iron-form" id="form" method="post">
+        <form is="iron-form" id="signin-form" action="/auth/password" method="post" on-iron-form-presubmit="onPwSignIn">
           <input id="csrf_token" type="hidden" name="csrf_token" value="{{csrf_token}}" />
           <paper-input type="email" id="lemail" name="email" label="email" autocomplete="username" error-message="at least email format, please" auto-validate></paper-input>
           <paper-input id="lpassword" type="password" name="password" label="password" autocomplete="current-password" pattern=".{4,32}"  error-message="4-32 letters please" auto-validate required></paper-input>
           <div class="buttons">
-            <paper-button dialog-dismiss raised>Cancel</paper-button>
-            <paper-button on-tap="onPwSignIn" raised>Submit</paper-button>
+            <button type="cancel" class="hidden">
+              <paper-button dialog-dismiss raised>Cancel</paper-button>
+            </button>
+            <button type="submit" class="hidden">
+              <paper-button raised>Submit</paper-button>
+            </button>
           </div>
         </form>
         <div class="layout horizontal center-justified">
@@ -163,15 +176,15 @@
               </template>
               <template is="dom-if" if="[[!userProfile]]">
                 <paper-card heading="Sign-up now!">
-                  <form is="iron-form" id="regForm" method="post">{% endraw %}
+                  <form is="iron-form" id="reg-form" action="/register" method="post" on-iron-form-presubmit="onRegister">{% endraw %}
                     <input type="hidden" name="csrf_token" value="{{csrf_token}}" />{% raw %}
                     <paper-input id="name" name="name" label="Whatever name" autocomplete="name" pattern=".{1,32}" error-message="4-32 letters please" auto-validate required></paper-input>
                     <paper-input type="email" id="email" name="email" label="Fake email address" autocomplete="username" error-message="at least email format, please" auto-validate required></paper-input>
                     <paper-input id="password" type="password" name="password" label="Bogus password" autocomplete="new-password" pattern=".{4,32}" error-message="4-32 letters please" auto-validate required></paper-input>
                     <div class="layout horizontal around-justified">
-                      <paper-button on-tap="onRegister" raised>
-                        Register
-                      </paper-button>
+                      <button type="submit" class="hidden">
+                        <paper-button raised>Register</paper-button>
+                      </button>
                     </div>
                   </form>
                   <div class="layout horizontal center-justified">
