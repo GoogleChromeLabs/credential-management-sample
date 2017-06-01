@@ -1,16 +1,22 @@
 {
   "name": "credential-management-sample",
-  "version": "0.0.0",
+  "version": "0.1.0",
   "description": "",
   "main": "index.js",
   "scripts": {
     "postinstall": "pip install -t lib -r requirements.txt; bower install;",
-    "build": "vulcanize static/elements/elements.html > static/elements/elements.vulcanized.html;"
+    "start": "dev_appserver.py .",
+    "build": "vulcanize static/elements/elements.html > static/elements/elements.vulcanized.html; babel static/scripts/app.js --out-file static/scripts/app-cmp.js --source-maps"
   },
   "author": "Eiji Kitamura <agektmr@google.com>",
   "license": "Apache-2.0",
   "devDependencies": {
+    "babel-cli": "^6.24.1",
+    "babel-preset-es2017": "^6.24.1",
     "html-minifier": "^1.0.0",
     "vulcanize": "^1.14.0"
+  },
+  "dependencies": {
+    "babel-polyfill": "^6.23.0"
   }
 }

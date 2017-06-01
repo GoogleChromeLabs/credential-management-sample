@@ -1,3 +1,5 @@
+function _asyncToGenerator(fn) { return function () { var gen = fn.apply(this, arguments); return new Promise(function (resolve, reject) { function step(key, arg) { try { var info = gen[key](arg); var value = info.value; } catch (error) { reject(error); return; } if (info.done) { resolve(value); } else { return Promise.resolve(value).then(function (value) { step("next", value); }, function (err) { step("throw", err); }); } } return step("next"); }); }; }
+
 /**
  *
  * Copyright 2016 Google Inc. All rights reserved.
@@ -16,12 +18,12 @@
  */
 
 const PASSWORD_LOGIN = 'password';
-const GOOGLE_SIGNIN  = 'https://accounts.google.com';
+const GOOGLE_SIGNIN = 'https://accounts.google.com';
 const FACEBOOK_LOGIN = 'https://www.facebook.com';
-const REGISTER       = 'register';
-const UNREGISTER     = 'unregister';
-const SIGNOUT        = 'singout';
-const DEFAULT_IMG    = '/images/default_img.png';
+const REGISTER = 'register';
+const UNREGISTER = 'unregister';
+const SIGNOUT = 'singout';
+const DEFAULT_IMG = '/images/default_img.png';
 
 /*
   Although this sample app is using Polymer, most of the interactions are
@@ -44,110 +46,122 @@ app.listeners = {
  * @param  {FormData} form FormData to POST to the server
  * @return {Promise} Resolves when successfully authenticated
  */
-app._fetch = async function(provider, form = new FormData()) {
-  let url = '';
-  switch (provider) {
-    case FACEBOOK_LOGIN:
-      url = '/auth/facebook';
-      break;
-    case GOOGLE_SIGNIN:
-      url = '/auth/google';
-      break;
-    case PASSWORD_LOGIN:
-      url = '/auth/password';
-      break;
-    case REGISTER:
-      url = '/register';
-      break;
-    case UNREGISTER:
-      url = '/unregister';
-      break;
-    case SIGNOUT:
-      url = '/signout';
-      break;
-  }
+app._fetch = (() => {
+  var _ref = _asyncToGenerator(function* (provider, form = new FormData()) {
+    let url = '';
+    switch (provider) {
+      case FACEBOOK_LOGIN:
+        url = '/auth/facebook';
+        break;
+      case GOOGLE_SIGNIN:
+        url = '/auth/google';
+        break;
+      case PASSWORD_LOGIN:
+        url = '/auth/password';
+        break;
+      case REGISTER:
+        url = '/register';
+        break;
+      case UNREGISTER:
+        url = '/unregister';
+        break;
+      case SIGNOUT:
+        url = '/signout';
+        break;
+    }
 
-  let res = await fetch(url, {
-    method:      'POST',
-    // `credentials:'include'` is required to include cookies on `fetch`
-    credentials: 'include',
-    headers: {
-      // `X-Requested-With` header to avoid CSRF attacks
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    body:        form
+    let res = yield fetch(url, {
+      method: 'POST',
+      // `credentials:'include'` is required to include cookies on `fetch`
+      credentials: 'include',
+      headers: {
+        // `X-Requested-With` header to avoid CSRF attacks
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: form
+    });
+    // Convert JSON string to an object
+    if (res.status === 200) {
+      return res.json();
+    } else {
+      return Promise.reject();
+    }
   });
-  // Convert JSON string to an object
-  if (res.status === 200) {
-    return res.json();
-  } else {
-    return Promise.reject();
-  }
-};
+
+  return function (_x) {
+    return _ref.apply(this, arguments);
+  };
+})();
 
 /**
  * Let users sign-in without typing credentials
  * @param  {Boolean} silent Determines if user mediation is required.
  * @return {Promise} Resolves if credential info is available.
  */
-app._autoSignIn = async function(silent) {
-  if (app.cmaEnabled) {
-    // Actual Credential Management API call to get credential object
-    let cred = await navigator.credentials.get({
-      password: true,
-      federated: {
-        providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
-      },
-      mediation: silent ? 'silent' : 'optional'
-    });
-    // If credential object is available
-    if (cred) {
-      console.log('auto sign-in performed');
+app._autoSignIn = (() => {
+  var _ref2 = _asyncToGenerator(function* (silent) {
+    if (app.cmaEnabled) {
+      // Actual Credential Management API call to get credential object
+      let cred = yield navigator.credentials.get({
+        password: true,
+        federated: {
+          providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
+        },
+        mediation: silent ? 'silent' : 'optional'
+      });
+      // If credential object is available
+      if (cred) {
+        console.log('auto sign-in performed');
 
-      let promise;
-      switch (cred.type) {
-        case 'password':
-          // Change form `id` name to `email`
-          let form = new FormData();
-          form.append('email', cred.id);
-          form.append('password', cred.password);
-          promise = app._fetch(PASSWORD_LOGIN, form);
-          break;
-        case 'federated':
-          switch (cred.provider) {
-            case GOOGLE_SIGNIN:
-              // Return Promise from `gSignIn`
-              promise = app.gSignIn(cred.id);
-              break;
-            case FACEBOOK_LOGIN:
-              // Return Promise from `fbSignIn`
-              promise = app.fbSignIn();
-              break;
-          }
-          break;
-      }
-      if (promise) {
-        return promise.then(app.signedIn);
+        let promise;
+        switch (cred.type) {
+          case 'password':
+            // Change form `id` name to `email`
+            let form = new FormData();
+            form.append('email', cred.id);
+            form.append('password', cred.password);
+            promise = app._fetch(PASSWORD_LOGIN, form);
+            break;
+          case 'federated':
+            switch (cred.provider) {
+              case GOOGLE_SIGNIN:
+                // Return Promise from `gSignIn`
+                promise = app.gSignIn(cred.id);
+                break;
+              case FACEBOOK_LOGIN:
+                // Return Promise from `fbSignIn`
+                promise = app.fbSignIn();
+                break;
+            }
+            break;
+        }
+        if (promise) {
+          return promise.then(app.signedIn);
+        } else {
+          return Promise.resolve();
+        }
       } else {
+        console.log('auto sign-in not performed');
+
+        // Resolve if credential object is not available
         return Promise.resolve();
       }
     } else {
-      console.log('auto sign-in not performed');
-
-      // Resolve if credential object is not available
+      // Resolve if Credential Management API is not available
       return Promise.resolve();
     }
-  } else {
-    // Resolve if Credential Management API is not available
-    return Promise.resolve();
-  }
-};
+  });
+
+  return function (_x2) {
+    return _ref2.apply(this, arguments);
+  };
+})();
 
 /**
  * When password sign-in button is pressed.
  * @return {void}
  */
-app.onPwSignIn = function(e) {
+app.onPwSignIn = function (e) {
   e.preventDefault();
 
   let signinForm = e.target;
@@ -161,8 +175,7 @@ app.onPwSignIn = function(e) {
     form.append('password', cred.password);
 
     // Sign-In with our own server
-    app._fetch(PASSWORD_LOGIN, form)
-    .then(profile => {
+    app._fetch(PASSWORD_LOGIN, form).then(profile => {
       app.$.dialog.close();
 
       // Construct `FormData` object from actual `form`
@@ -181,8 +194,7 @@ app.onPwSignIn = function(e) {
       });
     });
   } else {
-    app._fetch(PASSWORD_LOGIN, new FormData(signinForm))
-    .then(() => {
+    app._fetch(PASSWORD_LOGIN, new FormData(signinForm)).then(() => {
       app.$.dialog.close();
 
       app.fire('show-toast', {
@@ -200,18 +212,16 @@ app.onPwSignIn = function(e) {
  * When google sign-in button is pressed.
  * @return {void}
  */
-app.onGSignIn = function() {
-  app.gSignIn()
-  .then(app.signedIn)
-  .then(profile => {
+app.onGSignIn = function () {
+  app.gSignIn().then(app.signedIn).then(profile => {
     app.$.dialog.close();
 
     if (app.cmaEnabled) {
       // Create `Credential` object for federation
       var cred = new FederatedCredential({
-        id:       profile.email,
-        name:     profile.name,
-        iconURL:  profile.imageUrl || DEFAULT_IMG,
+        id: profile.email,
+        name: profile.name,
+        iconURL: profile.imageUrl || DEFAULT_IMG,
         provider: GOOGLE_SIGNIN
       });
       // Store credential information after successful authentication
@@ -233,7 +243,7 @@ app.onGSignIn = function() {
  * @param  {String} id Preferred Gmail address for user to sign-in
  * @return {Promise} Returns result of authFlow
  */
-app.gSignIn = function(id) {
+app.gSignIn = function (id) {
   // Return Promise after Facebook Login dance.
   return (() => {
     let auth2 = gapi.auth2.getAuthInstance();
@@ -263,18 +273,16 @@ app.gSignIn = function(id) {
  * When facebook login button is pressed.
  * @return {void}
  */
-app.onFbSignIn = function() {
-  app.fbSignIn()
-  .then(app.signedIn)
-  .then(profile => {
+app.onFbSignIn = function () {
+  app.fbSignIn().then(app.signedIn).then(profile => {
     app.$.dialog.close();
 
     if (app.cmaEnabled) {
       // Create `Credential` object for federation
       var cred = new FederatedCredential({
-        id:       profile.email,
-        name:     profile.name,
-        iconURL:  profile.imageUrl || DEFAULT_IMG,
+        id: profile.email,
+        name: profile.name,
+        iconURL: profile.imageUrl || DEFAULT_IMG,
         provider: FACEBOOK_LOGIN
       });
       // Store credential information after successful authentication
@@ -295,15 +303,15 @@ app.onFbSignIn = function() {
  * Let user sign-in using Facebook Login
  * @return {Promise} Returns result of authFlow
  */
-app.fbSignIn = function() {
+app.fbSignIn = function () {
   // Return Promise after Facebook Login dance.
   return (() => {
-    return new Promise(function(resolve) {
-      FB.getLoginStatus(function(res) {
+    return new Promise(function (resolve) {
+      FB.getLoginStatus(function (res) {
         if (res.status == 'connected') {
           resolve(res);
         } else {
-          FB.login(resolve, {scope: 'email'});
+          FB.login(resolve, { scope: 'email' });
         }
       });
     });
@@ -326,7 +334,7 @@ app.fbSignIn = function() {
  * and let user sign-in.
  * @return {void}
  */
-app.onRegister = function(e) {
+app.onRegister = function (e) {
   e.preventDefault();
 
   let regForm = e.target;
@@ -334,9 +342,7 @@ app.onRegister = function(e) {
   // Polymer `iron-form` feature to validate the form
   if (!regForm.validate()) return;
 
-  app._fetch(REGISTER, new FormData(regForm))
-  .then(app.signedIn)
-  .then(profile => {
+  app._fetch(REGISTER, new FormData(regForm)).then(app.signedIn).then(profile => {
     app.fire('show-toast', {
       text: 'Thanks for signing up!'
     });
@@ -361,13 +367,12 @@ app.onRegister = function(e) {
  * Invoked when 'Unregister' button is pressed, unregisters user.
  * @return {[type]} [description]
  */
-app.onUnregister = function() {
+app.onUnregister = function () {
   // POST `id` to `/unregister` to unregister the user
   let form = new FormData();
   form.append('id', app.userProfile.id);
 
-  app._fetch(UNREGISTER, form)
-  .then(() => {
+  app._fetch(UNREGISTER, form).then(() => {
     if (app.cmaEnabled) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
@@ -390,9 +395,8 @@ app.onUnregister = function() {
  * Invoked when 'Sign-out' button is pressed, performs sign-out.
  * @return {void}
  */
-app.signOut = function() {
-  app._fetch(SIGNOUT)
-  .then(() => {
+app.signOut = function () {
+  app._fetch(SIGNOUT).then(() => {
     if (app.cmaEnabled) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
@@ -414,12 +418,12 @@ app.signOut = function() {
  * @param  {Object} profile Profile information object
  * @return {Promise} Resolves when authentication succeeded.
  */
-app.signedIn = function(profile) {
+app.signedIn = function (profile) {
   if (profile && profile.name && profile.email) {
     app.userProfile = {
-      id:       profile.id,
-      name:     profile.name,
-      email:    profile.email,
+      id: profile.id,
+      name: profile.name,
+      email: profile.email,
       imageUrl: profile.imageUrl || DEFAULT_IMG
     };
     return Promise.resolve(profile);
@@ -433,7 +437,7 @@ app.signedIn = function(profile) {
  * @param  {Event} e Polymer custom event object
  * @return {void}
  */
-app.showToast = function(e) {
+app.showToast = function (e) {
   this.$.toast.text = e.detail.text;
   this.$.toast.show();
 };
@@ -443,10 +447,9 @@ app.showToast = function(e) {
  * open dialog if it fails.
  * @return {void}
  */
-app.openDialog = function() {
+app.openDialog = function () {
   // Try auto sign-in before opening the dialog
-  app._autoSignIn(false)
-  .then(profile => {
+  app._autoSignIn(false).then(profile => {
     // When auto sign-in didn't resolve with a profile
     // it's failed to get credential information.
     // Open the form so the user can enter id/password
@@ -466,17 +469,18 @@ app.openDialog = function() {
 // Initialise Facebook Login
 FB.init({
   // Replace this with your own App ID
-  appId:    FB_APPID,
-  cookie:   true,
-  xfbml:    false,
-  version:  'v2.5'
+  appId: FB_APPID,
+  cookie: true,
+  xfbml: false,
+  version: 'v2.5'
 });
 
 // Initialise Google Sign-In
-gapi.load('auth2', function() {
-  gapi.auth2.init()
-  .then(() => {
+gapi.load('auth2', function () {
+  gapi.auth2.init().then(() => {
     // Try auto sign-in performance after initialization
     app._autoSignIn(true);
   });
 });
+
+//# sourceMappingURL=app-cmp.js.map

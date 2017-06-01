@@ -81,22 +81,17 @@ class CredentialStore(ndb.Model):
 def csrf_protect():
     # All incoming POST requests will pass through this
     if request.method == 'POST':
-        # Obtain CSRF token embedded in the session
-        csrf_token = session.get('csrf_token', None)
-        # Compare the POST'ed CSRF token with the one in the session
-        if not csrf_token or csrf_token != request.form.get('csrf_token'):
+        # Obtain the custom request header to check if this request
+        # is from a browser and is intentional.
+        header = request.headers.get('X-Requested-With', None)
+        if not header:
             # Return 403 if empty or they are different
             return make_response('', 403)
 
-
 @app.route('/')
 def index():
-    # Issue a CSRF token if not included in the session
-    if 'csrf_token' not in session:
-        session['csrf_token'] = binascii.hexlify(os.urandom(24))
     return render_template('index.html', client_id=CLIENT_ID,
-                           FACEBOOK_APPID=FACEBOOK_APPID,
-                           csrf_token=session['csrf_token'])
+                           FACEBOOK_APPID=FACEBOOK_APPID)
 
 
 @app.route('/auth/password', methods=['POST'])
@@ -253,15 +248,15 @@ def unregister():
     if store is None:
         make_response('User not registered', 400)
 
-    profile = store.profile
+    if not hasattr(store, 'profile'):
+        return make_response('{"status":"failure"}', 400)
 
-    if profile is None:
-        return make_response('Failed', 400)
+    profile = store.profile
 
     # Remove the user account
     CredentialStore.remove(str(id))
     # Not terminating a session for demo purpose/simplicity
-    return make_response('Success', 200)
+    return make_response('{"status":"success"}', 200)
 
 
 @app.route('/signout', methods=['POST'])

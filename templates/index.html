@@ -26,7 +26,7 @@
 
   <meta name="google-signin-client_id" content="{{client_id}}">
   <script src="bower_components/fetch/fetch.js"></script>
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.min.js"></script>
+  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="https://apis.google.com/js/platform.js"></script>
   <script src="https://connect.facebook.net/en_US/sdk.js"></script>
 
@@ -93,7 +93,6 @@
       <paper-dialog-scrollable>
         <h2>Please sign-in</h2>
         <form is="iron-form" id="signin-form" action="/auth/password" method="post" on-iron-form-presubmit="onPwSignIn">
-          <input id="csrf_token" type="hidden" name="csrf_token" value="{{csrf_token}}" />
           <paper-input type="email" id="lemail" name="email" label="email" autocomplete="username" error-message="at least email format, please" auto-validate></paper-input>
           <paper-input id="lpassword" type="password" name="password" label="password" autocomplete="current-password" pattern=".{4,32}"  error-message="4-32 letters please" auto-validate required></paper-input>
           <div class="buttons">
@@ -176,10 +175,9 @@
               </template>
               <template is="dom-if" if="[[!userProfile]]">
                 <paper-card heading="Sign-up now!">
-                  <form is="iron-form" id="reg-form" action="/register" method="post" on-iron-form-presubmit="onRegister">{% endraw %}
-                    <input type="hidden" name="csrf_token" value="{{csrf_token}}" />{% raw %}
+                  <form is="iron-form" id="reg-form" action="/register" method="post" on-iron-form-presubmit="onRegister">
                     <paper-input id="name" name="name" label="Whatever name" autocomplete="name" pattern=".{1,32}" error-message="4-32 letters please" auto-validate required></paper-input>
-                    <paper-input type="email" id="email" name="email" label="Fake email address" autocomplete="username" error-message="at least email format, please" auto-validate required></paper-input>
+                    <paper-input type="email" id="email" name="email" label="Fake email address" autocomplete="username email" error-message="at least email format, please" auto-validate required></paper-input>
                     <paper-input id="password" type="password" name="password" label="Bogus password" autocomplete="new-password" pattern=".{4,32}" error-message="4-32 letters please" auto-validate required></paper-input>
                     <div class="layout horizontal around-justified">
                       <button type="submit" class="hidden">
