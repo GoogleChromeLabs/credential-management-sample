@@ -87,7 +87,8 @@ app._fetch = async function(provider, form = new FormData()) {
 
 /**
  * Let users sign-in without typing credentials
- * @param  {Boolean} silent Determines if user mediation is required.
+ * @param  {Boolean} silent Determines if account chooser shouldn't be
+ * displayed.
  * @return {Promise} Resolves if credential info is available.
  */
 app._autoSignIn = async function(silent) {
@@ -155,45 +156,31 @@ app.onPwSignIn = function(e) {
   // Polymer `iron-form` feature to validate the form
   if (!signinForm.validate()) return;
 
-  if (app.cmaEnabled) {
-    let form = new FormData();
-    form.append('email', cred.id);
-    form.append('password', cred.password);
+  let form = new FormData(signinForm);
 
-    // Sign-In with our own server
-    app._fetch(PASSWORD_LOGIN, form)
-    .then(profile => {
-      app.$.dialog.close();
+  // Sign-In with our own server
+  app._fetch(PASSWORD_LOGIN, form)
+  .then(app.signedIn)
+  .then(profile => {
+    app.$.dialog.close();
 
+    if (app.cmaEnabled) {
       // Construct `FormData` object from actual `form`
       let cred = new PasswordCredential(signinForm);
       cred.name = profile.name;
 
       // Store credential information before posting
       navigator.credentials.store(cred);
-      app.fire('show-toast', {
-        text: 'You are signed in'
-      });
-    }, () => {
-      // Polymer event to notice user that 'Authentication failed'.
-      app.fire('show-toast', {
-        text: 'Authentication failed'
-      });
+    }
+    app.fire('show-toast', {
+      text: 'You are signed in'
     });
-  } else {
-    app._fetch(PASSWORD_LOGIN, new FormData(signinForm))
-    .then(() => {
-      app.$.dialog.close();
-
-      app.fire('show-toast', {
-        text: 'You are signed in'
-      });
-    }, () => {
-      app.fire('show-toast', {
-        text: 'Authentication failed'
-      });
+  }, () => {
+    // Polymer event to notice user that 'Authentication failed'.
+    app.fire('show-toast', {
+      text: 'Authentication failed'
     });
-  }
+  });
 };
 
 /**

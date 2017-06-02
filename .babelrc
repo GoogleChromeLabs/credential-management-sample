@@ -1,4 +1,4 @@
 {
   "presets": ["es2017"],
-  "sourceMaps": true
+  "sourceMaps": "inline"
 }

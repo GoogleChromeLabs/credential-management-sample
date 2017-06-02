@@ -5,8 +5,8 @@
   "main": "index.js",
   "scripts": {
     "postinstall": "pip install -t lib -r requirements.txt; bower install;",
-    "start": "dev_appserver.py .",
-    "build": "vulcanize static/elements/elements.html > static/elements/elements.vulcanized.html; babel static/scripts/app.js --out-file static/scripts/app-cmp.js --source-maps"
+    "start": "npm run build; dev_appserver.py .",
+    "build": "vulcanize static/elements/elements.html > static/elements/elements.vulcanized.html; babel static/scripts/app.js --out-file static/scripts/app-cmp.js"
   },
   "author": "Eiji Kitamura <agektmr@google.com>",
   "license": "Apache-2.0",
