@@ -44,7 +44,7 @@ app.listeners = {
  * @param  {FormData} form FormData to POST to the server
  * @return {Promise} Resolves when successfully authenticated
  */
-app._fetch = async function(provider, form = new FormData()) {
+app._fetch = async function(provider, c = new FormData()) {
   let url = '';
   switch (provider) {
     case FACEBOOK_LOGIN:
@@ -67,16 +67,28 @@ app._fetch = async function(provider, form = new FormData()) {
       break;
   }
 
-  let res = await fetch(url, {
-    method:      'POST',
-    // `credentials:'include'` is required to include cookies on `fetch`
-    credentials: 'include',
-    headers: {
-      // `X-Requested-With` header to avoid CSRF attacks
-      'X-Requested-With': 'XMLHttpRequest'
-    },
-    body:        form
-  });
+  let res;
+  if (c instanceof PasswordCredential) {
+    res = await fetch(url, {
+      method: 'POST',
+      headers: {
+        // `X-Requested-With` header to avoid CSRF attacks
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      credentials: c
+    })
+  } else {
+    res = await fetch(url, {
+      method: 'POST',
+      // `credentials:'include'` is required to include cookies on `fetch`
+      credentials: 'include',
+      headers: {
+        // `X-Requested-With` header to avoid CSRF attacks
+        'X-Requested-With': 'XMLHttpRequest'
+      },
+      body: c
+    });
+  }
   // Convert JSON string to an object
   if (res.status === 200) {
     return res.json();
@@ -108,11 +120,19 @@ app._autoSignIn = async function(silent) {
       let promise;
       switch (cred.type) {
         case 'password':
-          // Change form `id` name to `email`
-          let form = new FormData();
-          form.append('email', cred.id);
-          form.append('password', cred.password);
-          promise = app._fetch(PASSWORD_LOGIN, form);
+          // If `password` prop doesn't exist, this is Chrome < 60
+          if (cred.password === undefined) {
+            cred.idName = 'email';
+            promise = app._fetch(PASSWORD_LOGIN, cred);
+
+          // Otherwise, this is Chrome => 60
+          } else {
+            // Change form `id` name to `email`
+            let form = new FormData();
+            form.append('email', cred.id);
+            form.append('password', cred.password);
+            promise = app._fetch(PASSWORD_LOGIN, form);
+          }
           break;
         case 'federated':
           switch (cred.provider) {
@@ -383,7 +403,7 @@ app.signOut = function() {
     if (app.cmaEnabled) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
-      navigator.credentials.requireUserMediation();
+      navigator.credentials.preventSilentAccess();
     }
     app.userProfile = null;
     app.fire('show-toast', {
