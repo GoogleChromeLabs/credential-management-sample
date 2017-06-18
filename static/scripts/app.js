@@ -378,7 +378,7 @@ app.onUnregister = function() {
     if (app.cmaEnabled) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
-      navigator.credentials.requireUserMediation();
+      navigator.credentials.preventSilentAccess();
     }
     app.userProfile = null;
     app.fire('show-toast', {
