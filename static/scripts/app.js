@@ -28,6 +28,14 @@ const DEFAULT_IMG    = '/images/default_img.png';
   handled using regular APIs so you don't have to learn about it.
  */
 let app = document.querySelector('#app');
+// IMPORTANT: If you only support [updated
+// version](https://developers.google.com/web/updates/2017/06/credential-management-updates)
+// of Credential Management API on Chrome, use additional check like following:
+// ```
+// app.cmaEnabled =
+// navigator.credentials && navigator.credentials.preventSilentAccess;
+// ```
+// This sample code supports both old and new APIs.
 app.cmaEnabled = !!navigator.credentials;
 // `selected` is used to show a portion of our page
 app.selected = 0;
