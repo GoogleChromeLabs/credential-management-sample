@@ -2,6 +2,8 @@
 
 - Try [a live demo](https://credential-management-sample.appspot.com).
 - Learn [how Credential Management API works](https://developers.google.com/web/updates/2016/04/credential-management-api).
+- Learn [how to implement](https://g.co/CredentialManagementAPI).
+- Learn [what's updated in Chrome 60](https://developers.google.com/web/updates/2017/06/credential-management-updates).
 - Try [codelab](https://g.co/codelabs/cmapi).
 
 ## Installation
@@ -45,5 +47,5 @@ $ npm run build
 ### Step 4. Run the app
 ```sh
 # Launch App Engine at root dir of this project with following command
-$ dev_appserver.py .
+$ npm start
 ```
