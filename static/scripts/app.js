@@ -184,17 +184,21 @@ app.onPwSignIn = function(e) {
   // Polymer `iron-form` feature to validate the form
   if (!signinForm.validate()) return;
 
-  let form = new FormData(signinForm);
+  let signinFormData = new FormData(signinForm);
 
+  // Store the exact credentials sent to the server
+  let email = signinFormData.get('email');
+  let password = signinFormData.get('password');
+  
   // Sign-In with our own server
-  app._fetch(PASSWORD_LOGIN, form)
+  app._fetch(PASSWORD_LOGIN, signinFormData)
   .then(app.signedIn)
   .then(profile => {
     app.$.dialog.close();
 
     if (app.cmaEnabled) {
       // Construct `FormData` object from actual `form`
-      let cred = new PasswordCredential(signinForm);
+      let cred = new PasswordCredential({id: email, password: password});
       cred.name = profile.name;
 
       // Store credential information before posting
@@ -348,8 +352,14 @@ app.onRegister = function(e) {
 
   // Polymer `iron-form` feature to validate the form
   if (!regForm.validate()) return;
+  
+  let regFormData = new FormData(regForm);
+  
+  // Store the exact credentials sent to the server
+  let email = regFormData.get('email');
+  let password = regFormData.get('password');
 
-  app._fetch(REGISTER, new FormData(regForm))
+  app._fetch(REGISTER, regFormData)
   .then(app.signedIn)
   .then(profile => {
     app.fire('show-toast', {
@@ -358,7 +368,7 @@ app.onRegister = function(e) {
 
     if (app.cmaEnabled) {
       // Create password credential
-      let cred = new PasswordCredential(regForm);
+      let cred = new PasswordCredential({id: email, password: password});
       cred.name = profile.name;
       cred.iconURL = profile.imageUrl;
 
