@@ -27,14 +27,7 @@ const DEFAULT_IMG    = '/images/default_img.png';
   Although this sample app is using Polymer, most of the interactions are
   handled using regular APIs so you don't have to learn about it.
  */
-let app = document.querySelector('#app');
-// IMPORTANT: If you only support [updated
-// version](https://developers.google.com/web/updates/2017/06/credential-management-updates)
-// of Credential Management API on Chrome, use additional check like following:
-// ```
-// app.cmaEnabled =
-// navigator.credentials && navigator.credentials.preventSilentAccess;
-// ```
+const app = document.querySelector('#app');
 // This sample code supports both old and new APIs.
 app.cmaEnabled = !!navigator.credentials;
 // `selected` is used to show a portion of our page
@@ -75,28 +68,16 @@ app._fetch = async function(provider, c = new FormData()) {
       break;
   }
 
-  let res;
-  if (c instanceof PasswordCredential) {
-    res = await fetch(url, {
-      method: 'POST',
-      headers: {
-        // `X-Requested-With` header to avoid CSRF attacks
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      credentials: c
-    })
-  } else {
-    res = await fetch(url, {
-      method: 'POST',
-      // `credentials:'include'` is required to include cookies on `fetch`
-      credentials: 'include',
-      headers: {
-        // `X-Requested-With` header to avoid CSRF attacks
-        'X-Requested-With': 'XMLHttpRequest'
-      },
-      body: c
-    });
-  }
+  const res = await fetch(url, {
+    method: 'POST',
+    // `credentials:'include'` is required to include cookies on `fetch`
+    credentials: 'include',
+    headers: {
+      // `X-Requested-With` header to avoid CSRF attacks
+      'X-Requested-With': 'XMLHttpRequest'
+    },
+    body: c
+  });
   // Convert JSON string to an object
   if (res.status === 200) {
     return res.json();
@@ -114,7 +95,7 @@ app._fetch = async function(provider, c = new FormData()) {
 app._autoSignIn = async function(silent) {
   if (app.cmaEnabled) {
     // Actual Credential Management API call to get credential object
-    let cred = await navigator.credentials.get({
+    const cred = await navigator.credentials.get({
       password: true,
       federated: {
         providers: [GOOGLE_SIGNIN, FACEBOOK_LOGIN]
@@ -136,7 +117,7 @@ app._autoSignIn = async function(silent) {
           // Otherwise, this is Chrome => 60
           } else {
             // Change form `id` name to `email`
-            let form = new FormData();
+            const form = new FormData();
             form.append('email', cred.id);
             form.append('password', cred.password);
             promise = app._fetch(PASSWORD_LOGIN, form);
@@ -179,17 +160,17 @@ app._autoSignIn = async function(silent) {
 app.onPwSignIn = function(e) {
   e.preventDefault();
 
-  let signinForm = e.target;
+  const signinForm = e.target;
 
   // Polymer `iron-form` feature to validate the form
   if (!signinForm.validate()) return;
 
-  let signinFormData = new FormData(signinForm);
+  const signinFormData = new FormData(signinForm);
 
   // Store the exact credentials sent to the server
-  let email = signinFormData.get('email');
-  let password = signinFormData.get('password');
-  
+  const email = signinFormData.get('email');
+  const password = signinFormData.get('password');
+
   // Sign-In with our own server
   app._fetch(PASSWORD_LOGIN, signinFormData)
   .then(app.signedIn)
@@ -198,7 +179,7 @@ app.onPwSignIn = function(e) {
 
     if (app.cmaEnabled) {
       // Construct `FormData` object from actual `form`
-      let cred = new PasswordCredential({id: email, password: password});
+      const cred = new PasswordCredential({id: email, password: password});
       cred.name = profile.name;
 
       // Store credential information before posting
@@ -227,7 +208,7 @@ app.onGSignIn = function() {
 
     if (app.cmaEnabled) {
       // Create `Credential` object for federation
-      var cred = new FederatedCredential({
+      const cred = new FederatedCredential({
         id:       profile.email,
         name:     profile.name,
         iconURL:  profile.imageUrl || DEFAULT_IMG,
@@ -255,10 +236,10 @@ app.onGSignIn = function() {
 app.gSignIn = function(id) {
   // Return Promise after Facebook Login dance.
   return (() => {
-    let auth2 = gapi.auth2.getAuthInstance();
+    const auth2 = gapi.auth2.getAuthInstance();
     if (auth2.isSignedIn.get()) {
       // Check if currently signed in user is the same as intended.
-      let googleUser = auth2.currentUser.get();
+      const googleUser = auth2.currentUser.get();
       if (googleUser.getBasicProfile().getEmail() === id) {
         return Promise.resolve(googleUser);
       }
@@ -272,7 +253,7 @@ app.gSignIn = function(id) {
   })().then(googleUser => {
     // Now user is successfully authenticated with Google.
     // Send ID Token to the server to authenticate with our server.
-    let form = new FormData();
+    const form = new FormData();
     form.append('id_token', googleUser.getAuthResponse().id_token);
     return app._fetch(GOOGLE_SIGNIN, form);
   });
@@ -290,7 +271,7 @@ app.onFbSignIn = function() {
 
     if (app.cmaEnabled) {
       // Create `Credential` object for federation
-      var cred = new FederatedCredential({
+      const cred = new FederatedCredential({
         id:       profile.email,
         name:     profile.name,
         iconURL:  profile.imageUrl || DEFAULT_IMG,
@@ -330,7 +311,7 @@ app.fbSignIn = function() {
     // On successful authentication with Facebook
     if (res.status == 'connected') {
       // For Facebook, we use the Access Token to authenticate.
-      let form = new FormData();
+      const form = new FormData();
       form.append('access_token', res.authResponse.accessToken);
       return app._fetch(FACEBOOK_LOGIN, form);
     } else {
@@ -348,16 +329,16 @@ app.fbSignIn = function() {
 app.onRegister = function(e) {
   e.preventDefault();
 
-  let regForm = e.target;
+  const regForm = e.target;
 
   // Polymer `iron-form` feature to validate the form
   if (!regForm.validate()) return;
-  
-  let regFormData = new FormData(regForm);
-  
+
+  const regFormData = new FormData(regForm);
+
   // Store the exact credentials sent to the server
-  let email = regFormData.get('email');
-  let password = regFormData.get('password');
+  const email = regFormData.get('email');
+  const password = regFormData.get('password');
 
   app._fetch(REGISTER, regFormData)
   .then(app.signedIn)
@@ -368,7 +349,7 @@ app.onRegister = function(e) {
 
     if (app.cmaEnabled) {
       // Create password credential
-      let cred = new PasswordCredential({id: email, password: password});
+      const cred = new PasswordCredential({id: email, password: password});
       cred.name = profile.name;
       cred.iconURL = profile.imageUrl;
 
@@ -388,7 +369,7 @@ app.onRegister = function(e) {
  */
 app.onUnregister = function() {
   // POST `id` to `/unregister` to unregister the user
-  let form = new FormData();
+  const form = new FormData();
   form.append('id', app.userProfile.id);
 
   app._fetch(UNREGISTER, form)
