@@ -399,7 +399,7 @@ app.onUnregister = function() {
 app.signOut = function() {
   app._fetch(SIGNOUT)
   .then(() => {
-    if (app.cmaEnabled) {
+    if (app.cmator.credentials.preventSilentAccess) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
       navigator.credentials.preventSilentAccess();
