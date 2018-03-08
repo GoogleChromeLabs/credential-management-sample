@@ -91,7 +91,7 @@ app._fetch = async function(provider, c = new FormData()) {
  * @return {Promise} Resolves if credential info is available.
  */
 app._autoSignIn = async function(silent) {
-  if (window.PasswordCredential) {
+  if (window.PasswordCredential || window.FederatedCredential) {
     // Actual Credential Management API call to get credential object
     const cred = await navigator.credentials.get({
       password: true,
@@ -364,7 +364,7 @@ app.onUnregister = function() {
 
   app._fetch(UNREGISTER, form)
   .then(() => {
-    if (window.PasswordCredential) {
+    if (navigator.credentials && navigator.credentials.preventSilentAccess) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
       navigator.credentials.preventSilentAccess();
@@ -389,7 +389,7 @@ app.onUnregister = function() {
 app.signOut = function() {
   app._fetch(SIGNOUT)
   .then(() => {
-    if (window.PasswordCredential) {
+    if (navigator.credentials && navigator.credentials.preventSilentAccess) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
       navigator.credentials.preventSilentAccess();
