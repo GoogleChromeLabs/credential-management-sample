@@ -28,8 +28,6 @@ const DEFAULT_IMG    = '/images/default_img.png';
   handled using regular APIs so you don't have to learn about it.
  */
 const app = document.querySelector('#app');
-// This sample code supports both old and new APIs.
-app.cmaEnabled = !!navigator.credentials;
 // `selected` is used to show a portion of our page
 app.selected = 0;
 // User profile automatically show up when an object is set.
@@ -93,7 +91,7 @@ app._fetch = async function(provider, c = new FormData()) {
  * @return {Promise} Resolves if credential info is available.
  */
 app._autoSignIn = async function(silent) {
-  if (app.cmaEnabled) {
+  if (window.PasswordCredential || window.FederatedCredential) {
     // Actual Credential Management API call to get credential object
     const cred = await navigator.credentials.get({
       password: true,
@@ -177,7 +175,7 @@ app.onPwSignIn = function(e) {
   .then(profile => {
     app.$.dialog.close();
 
-    if (app.cmaEnabled) {
+    if (window.PasswordCredential) {
       // Construct `FormData` object from actual `form`
       const cred = new PasswordCredential({id: email, password: password});
       cred.name = profile.name;
@@ -206,7 +204,7 @@ app.onGSignIn = function() {
   .then(profile => {
     app.$.dialog.close();
 
-    if (app.cmaEnabled) {
+    if (window.FederatedCredential) {
       // Create `Credential` object for federation
       const cred = new FederatedCredential({
         id:       profile.email,
@@ -269,7 +267,7 @@ app.onFbSignIn = function() {
   .then(profile => {
     app.$.dialog.close();
 
-    if (app.cmaEnabled) {
+    if (window.FederatedCredential) {
       // Create `Credential` object for federation
       const cred = new FederatedCredential({
         id:       profile.email,
@@ -347,7 +345,7 @@ app.onRegister = function(e) {
       text: 'Thanks for signing up!'
     });
 
-    if (app.cmaEnabled) {
+    if (window.PasswordCredential) {
       // Create password credential
       const cred = new PasswordCredential({id: email, password: password});
       cred.name = profile.name;
@@ -374,7 +372,7 @@ app.onUnregister = function() {
 
   app._fetch(UNREGISTER, form)
   .then(() => {
-    if (app.cmaEnabled) {
+    if (navigator.credentials && navigator.credentials.preventSilentAccess) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
       navigator.credentials.preventSilentAccess();
@@ -399,7 +397,7 @@ app.onUnregister = function() {
 app.signOut = function() {
   app._fetch(SIGNOUT)
   .then(() => {
-    if (app.cmaEnabled) {
+    if (navigator.credentials && navigator.credentials.preventSilentAccess) {
       // Turn on the mediation mode so auto sign-in won't happen
       // until next time user intended to do so.
       navigator.credentials.preventSilentAccess();
