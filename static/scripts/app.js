@@ -177,8 +177,11 @@ app.onPwSignIn = function(e) {
 
     if (window.PasswordCredential) {
       // Construct `FormData` object from actual `form`
-      const cred = new PasswordCredential({id: email, password: password});
-      cred.name = profile.name;
+      const cred = new PasswordCredential({
+        id: email,
+        password: password,
+        name: profile.name
+      });
 
       // Store credential information before posting
       navigator.credentials.store(cred);
@@ -347,9 +350,12 @@ app.onRegister = function(e) {
 
     if (window.PasswordCredential) {
       // Create password credential
-      const cred = new PasswordCredential({id: email, password: password});
-      cred.name = profile.name;
-      cred.iconURL = profile.imageUrl;
+      const cred = new PasswordCredential({
+        id: email,
+        password: password,
+        name: profile.name,
+        iconURL: profile.imageUrl
+      });
 
       // Store user information as this is registration using id/password
       navigator.credentials.store(cred);
