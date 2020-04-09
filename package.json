@@ -4,19 +4,23 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "postinstall": "pip install -t lib -r requirements.txt; bower install;",
-    "start": "npm run build; dev_appserver.py .",
-    "build": "vulcanize static/elements/elements.html > static/elements/elements.vulcanized.html; babel static/scripts/app.js --out-file static/scripts/app-cmp.js"
+    "start": "",
+    "build": ""
   },
   "author": "Eiji Kitamura <agektmr@google.com>",
   "license": "Apache-2.0",
   "devDependencies": {
-    "babel-cli": "^6.24.1",
-    "babel-preset-es2017": "^6.24.1",
-    "html-minifier": "^1.0.0",
-    "vulcanize": "^1.14.0"
+    "ts-loader": "^6.2.2",
+    "typescript": "^3.8.3",
+    "webpack": "^4.42.1",
+    "webpack-cli": "^3.3.11"
   },
   "dependencies": {
-    "babel-polyfill": "^6.23.0"
+    "@material/mwc-button": "^0.14.1",
+    "@material/mwc-drawer": "^0.14.1",
+    "@material/mwc-icon-button": "^0.14.1",
+    "@material/mwc-list": "^0.14.1",
+    "@material/mwc-textfield": "^0.14.1",
+    "@material/mwc-top-app-bar": "^0.14.1"
   }
 }
