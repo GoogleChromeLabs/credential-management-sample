@@ -25,16 +25,12 @@
   <title>Credential Management API Demo</title>
 
   <meta name="google-signin-client_id" content="{{client_id}}">
-  <script src="bower_components/webcomponentsjs/webcomponents-lite.js"></script>
   <script src="https://apis.google.com/js/platform.js"></script>
   <script src="https://connect.facebook.net/en_US/sdk.js"></script>
+  <link rel="stylesheet" href="https://fonts.googleapis.com/icon?family=Material+Icons">
+  <link rel="stylesheet" href="/styles/bundle.css">
   <link rel="shortcut icon" href="/favicon.png">
   <style>
-    .paper-font-title {
-      overflow: hidden;
-      white-space: nowrap;
-      text-overflow: ellipsis;
-    }
     .hidden {
       appearance: none;
       border: 0;
@@ -62,18 +58,6 @@
     #toast {
       color: white;
     }
-    iron-pages > div {
-      margin: 0 16px;
-    }
-    paper-item {
-      cursor: pointer;
-    }
-    paper-card {
-      margin-top: 24px;
-    }
-    paper-card > * {
-      padding: 0 24px 24px 24px;
-    }
     .howto img {
       width: 100%;
       max-width: 300px;
@@ -84,165 +68,117 @@
   </style>
 </head>
 
-<body unresolved class="fullbleed layout vertical">
-  <template id="app" is="dom-bind">
-    <paper-dialog id="dialog" modal>
-      <paper-dialog-scrollable>
-        <h2>Please sign-in</h2>
-        <form is="iron-form" id="signin-form" action="/auth/password" method="post" on-iron-form-presubmit="onPwSignIn">
-          <paper-input type="email" id="lemail" name="email" label="email" autocomplete="username" error-message="at least email format, please" auto-validate></paper-input>
-          <paper-input id="lpassword" type="password" name="password" label="password" autocomplete="current-password" pattern=".{4,32}"  error-message="4-32 letters please" auto-validate required></paper-input>
-          <div class="buttons">
-            <button type="cancel" class="hidden">
-              <paper-button dialog-dismiss raised>Cancel</paper-button>
-            </button>
-            <button type="submit" class="hidden">
-              <paper-button raised>Submit</paper-button>
-            </button>
-          </div>
-        </form>
-        <div class="layout horizontal center-justified">
-          <span>or</span>
-        </div>
-        <div class="gsignin" on-tap="onGSignIn">
-          <img src="images/google_signin.png" />
-        </div>
-        <div class="fbsignin" on-tap="onFbSignIn">
-          <img src="images/facebook_signin.png" />
-        </div>
-      </paper-dialog-scrollable>
-    </paper-dialog>
+<body>
+  <mwc-dialog heading="Please sign-in">
+    <h2>Please sign-in</h2>
+    <form is="iron-form" id="signin-form" action="/auth/password" method="post" on-iron-form-presubmit="onPwSignIn">
+      <mwc-textfield
+        type="email"
+        id="lemail"
+        name="email"
+        label="email"
+        autocomplete="username"
+        error-message="at least email format, please"></mwc-textfield>
+      <mwc-textfield
+        type="password"
+        id="lpassword"
+        name="password"
+        label="password"
+        autocomplete="current-password"
+        pattern=".{4,32}"
+        error-message="4-32 letters please"
+        required></mwc-textfield>
+      <div class="buttons">
+        <mwc-button
+          slot="secondaryAction"
+        >Cancel</mwc-button>
+        <mwc-button
+          slot="primaryAction"
+          raised
+        >Submit</mwc-button>
+      </div>
+    </form>
+    <div class="layout horizontal center-justified">
+      <span>or</span>
+    </div>
+    <div class="gsignin" on-tap="onGSignIn">
+      <img src="images/google_signin.png" />
+    </div>
+    <div class="fbsignin" on-tap="onFbSignIn">
+      <img src="images/facebook_signin.png" />
+    </div>
+  </mwc-dialog>
 
-    <paper-drawer-panel id="paperDrawerPanel">{% raw %}
-      <!-- Drawer Scroll Header Panel -->
-      <paper-scroll-header-panel drawer fixed>
-
-        <!-- Drawer Toolbar -->
-        <paper-toolbar id="drawerToolbar">
-          <span class="paper-font-title">Menu</span>
-        </paper-toolbar>
-        <paper-menu class="content" selected="{{selected}}">
-          <paper-item>Home</paper-item>
-          <paper-item>What's this?</paper-item>
-          <template is="dom-if" if="[[userProfile]]">
-            <paper-item on-tap="onUnregister">Remove account</paper-item>
-          </template>
-        </paper-menu>
-
-      </paper-scroll-header-panel>
-
-      <!-- Main Area -->
-      <paper-header-panel main mode="seamed">
-
-        <!-- Main Toolbar -->
-        <paper-toolbar id="mainToolbar">
-          <paper-icon-button id="paperToggle" icon="menu" paper-drawer-toggle>
-          </paper-icon-button>
-          <div class="flex title">
-            Credential Management API Demo
-          </div>
-
-          <!-- Toolbar icons -->
-          <template is="dom-if" if="[[!userProfile]]">
-            <paper-button on-tap="openDialog" raised>
-              Sign In
-            </paper-button>
-          </template>
-          <template is="dom-if" if="[[userProfile]]">
-            <paper-button on-tap="signOut" raised>Sign Out</paper-button>
-          </template>
-        </paper-toolbar>
-
-        <!-- Main Content -->
-        <div class="content">
-          <iron-pages selected="{{selected}}">
-            <div class="layout center vertical">
-              <template is="dom-if" if="[[!cmaEnabled]]">
-                <p>Credential Management API is not available on your browser.
-                Try <a href="https://www.google.com/chrome/browser/beta.html">
-                Google Chrome</a> version 51 or above.</p>
-              </template>
-              <template is="dom-if" if="[[userProfile]]">
-                <div class="profile layout center vertical">
-                  <h2>Welcome! <span>[[userProfile.name]]</span></h2>
-                  <div class="flex">
-                    <img src="[[userProfile.imageUrl]]"/>
-                  </div>
-                </div>
-              </template>
-              <template is="dom-if" if="[[!userProfile]]">
-                <paper-card heading="Sign-up now!">
-                  <form is="iron-form" id="reg-form" action="/register" method="post" on-iron-form-presubmit="onRegister">
-                    <paper-input id="name" name="name" label="Whatever name" autocomplete="name" pattern=".{1,32}" error-message="4-32 letters please" auto-validate required></paper-input>
-                    <paper-input type="email" id="email" name="email" label="Fake email address" autocomplete="username email" error-message="at least email format, please" auto-validate required></paper-input>
-                    <paper-input id="password" type="password" name="password" label="Bogus password" autocomplete="new-password" pattern=".{4,32}" error-message="4-32 letters please" auto-validate required></paper-input>
-                    <div class="layout horizontal around-justified">
-                      <button type="submit" class="hidden">
-                        <paper-button raised>Register</paper-button>
-                      </button>
-                    </div>
-                  </form>
-                  <div class="layout horizontal center-justified">
-                    <span>or</span>
-                  </div>
-                  <div class="gsignin" on-tap="onGSignIn">
-                    <img src="images/google_signin.png" />
-                  </div>
-                  <div class="fbsignin" on-tap="onFbSignIn">
-                    <img src="images/facebook_signin.png" />
-                  </div>
-                </paper-card>
-              </template>
-            </div>{% endraw %}
-            <div class="layout vertical howto">
-              <p>This is a demo website of the Credential Management API.  </p>
-
-              <p>You can find various resources:  </p>
-
-              <ul> <li><a
-              href="https://github.com/GoogleChrome/credential-management-sample">The source
-              code of this demo</a></li> <li><a
-              href="https://developers.google.com/web/updates/2016/04/credential-management-api">An
-              introduction article</a></li> <li><a
-              href="https://www.w3.org/TR/credential-management-1/">The official
-              spec</a></li> <li><a
-              href="https://developer.mozilla.org/en-US/docs/Web/API/Credential_Management_API">MDN
-              API reference</a></li> <li><a
-              href="https://g.co/codelabs/cmapi">A codelab to experience implementing this API</a></li> </ul>
-
-              <p>By using Credential Management API, you will be able to add
-              following functionalities to a website, for example:  </p>
-
-              <ul> <li><strong>Show account chooser when signing in:</strong>
-              Shows a native account chooser UI when a user taps "Sign In".</li>
-              <li><strong>Store credentials:</strong> Upon successful sign-in,
-              store the credential information to the browser's password manager
-              for later use.</li> <li><strong>Let the user automatically sign
-              back in:</strong> Let the user sign back in if a session is
-              expired.</li> <li><strong>Mediate auto sign-in:</strong> Once a
-              user signs out, disable automatic sign-in.</li> </ul>
-
-              <p>Here's a quick instruction how to experience those features.
-              </p>
-
-              <ol> <li>Register with fake name, id and password</li> <li>Save
-              password when prompted.</li> <li>Reload the page.</li> <li>You
-              should be signed out.</li> <li>Tap "Sign In".</li> <li>You should
-              see an account chooser. Choose one.</li> <li>Opt-in to auto
-              sign-in.</li> <li>You should be signed in now.</li> <li>Reload the
-              page again.</li> <li>You will be auto signed in.</li> <li>Notice a
-              banner telling that you are signed in.</li> </ol>
+  <mwc-drawer id="paperDrawerPanel" hasHeader>
+    <mwc-list>
+      <mwc-list-item>Home</mwc-list-item>
+      <mwc-list-item>What's this?</mwc-list-item>
+    </mwc-list>
+    <div slot="appContent">
+      <mwc-top-app-bar>
+        <div slot="title">Menu</div>
+        <mwc-button slot="actionItems" raised>Sign-In</mwc-button>
+      </mwc-top-app-bar>
+      <!-- Main Content -->
+      <main class="content">
+        <div>
+          <div class="card">
+            <form id="reg-form" class="card" action="/register" method="post">
+              <h2>Sign-up now!</h2>
+              <mwc-textfield
+                id="name"
+                name="name"
+                label="Whatever name"
+                autocomplete="name"
+                pattern=".{1,32}"
+                error-message="4-32 letters please"
+                outlined
+                auto-validate
+                required></mwc-textfield>
+              <mwc-textfield
+                type="email"
+                id="email"
+                name="email"
+                label="Fake email address"
+                autocomplete="username email"
+                error-message="at least email format, please"
+                outlined
+                auto-validate
+                required></mwc-textfield>
+              <mwc-textfield
+                id="password"
+                type="password"
+                name="password"
+                label="Bogus password"
+                autocomplete="new-password"
+                pattern=".{4,32}"
+                error-message="4-32 letters please"
+                outlined
+                auto-validate
+                required></mwc-textfield>
+              <div class="buttons">
+                <mwc-button raised>Register</mwc-button>
+              </div>
+            </form>
+            <div class="layout horizontal center-justified">
+              <span>or</span>
             </div>
-          </iron-pages>
+            <div class="gsignin" on-tap="onGSignIn">
+              <img src="images/google_signin.png" />
+            </div>
+            <div class="fbsignin" on-tap="onFbSignIn">
+              <img src="images/facebook_signin.png" />
+            </div>
+          </div>
         </div>
-      </paper-header-panel>
-    </paper-drawer-panel>
-    <paper-toast id="toast" duration="3000"></paper-toast>
-  </template>
+      </main>
+    </div>
+  </mwc-drawer>
+  <mwc-snackbar id="toast"></mwc-snackbar>
 
   <script>
     var FB_APPID = '{{FACEBOOK_APPID}}';
   </script>
-  <script src="scripts/app.js"></script>
+  <script src="scripts/bundle.js"></script>
 </body>
 </html>

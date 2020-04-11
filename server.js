@@ -1,15 +1,15 @@
 const express = require('express');
 const cookieParser = require('cookie-parser');
 const hbs = require('hbs');
-const auth = require('./lib/auth');
+// const auth = require('./lib/auth');
 const app = express();
 
 app.set('view engine', 'html');
 app.engine('html', hbs.__express);
-app.set('views', './templates');
+app.set('views', './dist');
 app.use(cookieParser());
 app.use(express.json());
-app.use(express.static('src'));
+app.use(express.static('dist'));
 
 // app.use((req, res, next) => {
 //   // CSRF Protection
@@ -20,7 +20,7 @@ app.get('/', (req, res) => {
   res.render('index.html', {
     FACEBOOK_APPID: 'abc',
     client_id: 'abc'
-  })
+  });
 });
 
 app.post('/auth/password', (req, res) => {

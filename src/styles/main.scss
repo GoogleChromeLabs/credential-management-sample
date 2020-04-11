@@ -1,0 +1,21 @@
+* {
+  font-family: Roboto;
+}
+
+body {
+  margin: 0;
+  padding: 0;
+}
+
+.card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  mwc-textfield {
+    margin-bottom: 10px;
+  }
+}
+
+.buttons {
+  display: flex;
+}

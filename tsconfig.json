@@ -1,0 +1,11 @@
+{
+  "compilerOptions":  {
+    "target": "ES2015",
+    "module": "es2015",
+    "removeComments": true,
+    "sourceMap": true,
+    "allowJs": true,
+    "lib": [ "ESNext", "DOM" ],
+    "moduleResolution": "node"
+  }
+}
