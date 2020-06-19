@@ -71,14 +71,20 @@
 <body>
   <mwc-dialog heading="Please sign-in">
     <h2>Please sign-in</h2>
-    <form is="iron-form" id="signin-form" action="/auth/password" method="post" on-iron-form-presubmit="onPwSignIn">
+    <form
+      is="iron-form"
+      id="signin-form"
+      action="/auth/password"
+      method="post"
+      on-iron-form-presubmit="onPwSignIn">
       <mwc-textfield
         type="email"
         id="lemail"
         name="email"
         label="email"
         autocomplete="username"
-        error-message="at least email format, please"></mwc-textfield>
+        error-message="at least email format, please">
+      </mwc-textfield>
       <mwc-textfield
         type="password"
         id="lpassword"
@@ -87,93 +93,89 @@
         autocomplete="current-password"
         pattern=".{4,32}"
         error-message="4-32 letters please"
-        required></mwc-textfield>
+        required>
+      </mwc-textfield>
       <div class="buttons">
-        <mwc-button
-          slot="secondaryAction"
-        >Cancel</mwc-button>
-        <mwc-button
-          slot="primaryAction"
-          raised
-        >Submit</mwc-button>
+        <mwc-button slot="secondaryAction">
+          Cancel
+        </mwc-button>
+        <mwc-button slot="primaryAction" raised>
+          Submit
+        </mwc-button>
       </div>
     </form>
     <div class="layout horizontal center-justified">
       <span>or</span>
     </div>
-    <div class="gsignin" on-tap="onGSignIn">
+    <mwc-button class="gsignin">
       <img src="images/google_signin.png" />
-    </div>
-    <div class="fbsignin" on-tap="onFbSignIn">
+    </mwc-button>
+    <mwc-button class="fbsignin">
       <img src="images/facebook_signin.png" />
-    </div>
+    </mwc-button>
   </mwc-dialog>
 
-  <mwc-drawer id="paperDrawerPanel" hasHeader>
-    <mwc-list>
-      <mwc-list-item>Home</mwc-list-item>
-      <mwc-list-item>What's this?</mwc-list-item>
-    </mwc-list>
-    <div slot="appContent">
-      <mwc-top-app-bar>
-        <div slot="title">Menu</div>
-        <mwc-button slot="actionItems" raised>Sign-In</mwc-button>
-      </mwc-top-app-bar>
-      <!-- Main Content -->
-      <main class="content">
-        <div>
-          <div class="card">
-            <form id="reg-form" class="card" action="/register" method="post">
-              <h2>Sign-up now!</h2>
-              <mwc-textfield
-                id="name"
-                name="name"
-                label="Whatever name"
-                autocomplete="name"
-                pattern=".{1,32}"
-                error-message="4-32 letters please"
-                outlined
-                auto-validate
-                required></mwc-textfield>
-              <mwc-textfield
-                type="email"
-                id="email"
-                name="email"
-                label="Fake email address"
-                autocomplete="username email"
-                error-message="at least email format, please"
-                outlined
-                auto-validate
-                required></mwc-textfield>
-              <mwc-textfield
-                id="password"
-                type="password"
-                name="password"
-                label="Bogus password"
-                autocomplete="new-password"
-                pattern=".{4,32}"
-                error-message="4-32 letters please"
-                outlined
-                auto-validate
-                required></mwc-textfield>
-              <div class="buttons">
-                <mwc-button raised>Register</mwc-button>
-              </div>
-            </form>
-            <div class="layout horizontal center-justified">
-              <span>or</span>
-            </div>
-            <div class="gsignin" on-tap="onGSignIn">
-              <img src="images/google_signin.png" />
-            </div>
-            <div class="fbsignin" on-tap="onFbSignIn">
-              <img src="images/facebook_signin.png" />
-            </div>
+  <mwc-top-app-bar>
+    <div slot="title">Menu</div>
+    <mwc-button slot="actionItems" raised>Sign-In</mwc-button>
+  </mwc-top-app-bar>
+  <!-- Main Content -->
+  <main class="content">
+    <div>
+      <div class="card">
+        <form
+          id="reg-form"
+          class="card"
+          action="/register"
+          method="post">
+          <h2>Sign-up now!</h2>
+          <mwc-textfield
+            id="name"
+            name="name"
+            label="Whatever name"
+            autocomplete="name"
+            pattern=".{1,32}"
+            error-message="4-32 letters please"
+            outlined
+            auto-validate
+            required></mwc-textfield>
+          <mwc-textfield
+            type="email"
+            id="email"
+            name="email"
+            label="Fake email address"
+            autocomplete="username email"
+            error-message="at least email format, please"
+            outlined
+            auto-validate
+            required></mwc-textfield>
+          <mwc-textfield
+            id="password"
+            type="password"
+            name="password"
+            label="Bogus password"
+            autocomplete="new-password"
+            pattern=".{4,32}"
+            error-message="4-32 letters please"
+            outlined
+            auto-validate
+            required></mwc-textfield>
+          <div class="buttons">
+            <mwc-button id="register" raised>Register</mwc-button>
           </div>
+        </form>
+        <div class="layout horizontal center-justified">
+          <span>or</span>
         </div>
-      </main>
+        <mwc-button class="gsignin">
+          <img src="images/google_signin.png" />
+        </mwc-button>
+        <mwc-button class="fbsignin">
+          <img src="images/facebook_signin.png" />
+        </mwc-button>
+      </div>
     </div>
-  </mwc-drawer>
+  </main>
   <mwc-snackbar id="toast"></mwc-snackbar>
 
   <script>

@@ -11,7 +11,7 @@ body {
   display: flex;
   flex-direction: column;
   align-items: center;
-  mwc-textfield {
+  mwc-textfield, mwc-button {
     margin-bottom: 10px;
   }
 }
